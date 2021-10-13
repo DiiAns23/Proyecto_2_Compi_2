@@ -1,22 +1,19 @@
-from .Environment import Environment
+from TablaSimbolos.Tabla_Simbolos import *
 
-class Generator:
+class Generador:
     generator = None
     def __init__(self):
         # Contadores
         self.countTemp = 0
         self.countLabel = 0
-
         # Code
         self.code = ''
         self.funcs = ''
         self.natives = ''
         self.inFunc = False
         self.inNatives = False
-
         # Lista de Temporales
         self.temps = []
-
         # Lista de Nativas
         self.printString = False
         
@@ -24,23 +21,21 @@ class Generator:
         # Contadores
         self.countTemp = 0
         self.countLabel = 0
-
         # Code
         self.code = ''
         self.funcs = ''
         self.natives = ''
         self.inFunc = False
         self.inNatives = False
-
         # Lista de Temporales
         self.temps = []
-
         # Lista de Nativas
         self.printString = False
-        Generator.generator = Generator()
+        Generador.generator = Generador()
     
-    #Codigo
-
+    #############
+    # CODE
+    #############
     def getHeader(self):
         ret = '/*----HEADER----*/\npackage main;\n\nimport (\n\t"fmt"\n)\n\n'
         if len(self.temps) > 0:
@@ -72,21 +67,25 @@ class Generator:
         self.codeIn(f'/* {comment} */\n')
     
     def getInstance(self):
-        if Generator.generator == None:
-            Generator.generator = Generator()
-        return Generator.generator
+        if Generador.generator == None:
+            Generador.generator = Generador()
+        return Generador.generator
 
     def addSpace(self):
         self.codeIn("\n")
 
-    # Temporales
+    ########################
+    # Manejo de Temporales
+    ########################
     def addTemp(self):
         temp = f't{self.countTemp}'
         self.countTemp += 1
         self.temps.append(temp)
         return temp
 
-    #Labels
+    #####################
+    # Manejo de Labels
+    #####################
     def newLabel(self):
         label = f'L{self.countLabel}'
         self.countLabel += 1
@@ -95,15 +94,21 @@ class Generator:
     def putLabel(self, label):
         self.codeIn(f'{label}:\n')
 
-    #Go to
+    ###################
+    # GOTO
+    ###################
     def addGoto(self, label):
         self.codeIn(f'goto {label};\n')
     
-    # If
+    ###################
+    # IF
+    ###################
     def addIf(self, left, right, op, label):
         self.codeIn(f'if {left} {op} {right} {{goto {label};}}\n')
 
-    #Expresiones
+    ###################
+    # EXPRESIONES
+    ###################
     def addExp(self, result, left, right, op):
         self.codeIn(f'{result}={left}{op}{right};\n')
     

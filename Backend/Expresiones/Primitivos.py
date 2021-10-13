@@ -1,7 +1,7 @@
 from Abstract.Expression import *
 from Abstract.Return import *
 from Abstract.Tipo import *
-from Symbol.Generator import Generator
+from TablaSimbolos.Generador import *
 import uuid
 class Primitivos(Expression):
 
@@ -10,8 +10,8 @@ class Primitivos(Expression):
         self.value = value
         self.type = type
     
-    def compilar(self, env):
-        genAux = Generator()
+    def compilar(self, tree, table):
+        genAux = Generador()
         generator = genAux.getInstance()
         if(self.type == Tipo.INT or self.type == Tipo.FLOAT):
             return Return(str(self.value), self.type, False)
@@ -49,3 +49,12 @@ class Primitivos(Expression):
             return Return(retTemp, Tipo.STRING, True)
         else:
             print('Por hacer')
+    
+    def getTipo(self):
+        return self.type
+    def getValue(self):
+        return self.value
+    def setValue(self, value):
+        self.value = value
+    def setTipo(self, tipo):
+        self.tipo = tipo

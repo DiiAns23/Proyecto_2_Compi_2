@@ -4,8 +4,10 @@ from werkzeug.utils import redirect
 import json
 from flask_cors import CORS
 import sys
-from Symbol.Environment import Environment
-from Symbol.Generator import Generator
+from TablaSimbolos.Excepcion import Excepcion
+from TablaSimbolos.Arbol import Arbol
+from TablaSimbolos.Tabla_Simbolos import *
+from TablaSimbolos.Generador import *
 from Analizador_Sintactico import parse as Analizar
 
 sys.setrecursionlimit(10000000)
@@ -32,20 +34,33 @@ def salida():
     global Excepciones
     global Tabla
     
-    genAux = Generator()
+    genAux = Generador()
     genAux.cleanAll()
     generador = genAux.getInstance()
 
-    newEnt = Environment(None)
-    ast = Analizar(tmp_val)
+    instrucciones = Analizar(tmp_val)
+    ast = Arbol(instrucciones)
+    TsgGlobal = Tabla_Simbolo()
+    ast.setTSglobal(TsgGlobal)
+
     try:
-        for instruccion in ast:
-            instruccion.compilar(newEnt)
-        # print(generador.getCode())
+        for instruccion in ast.getInst():
+            value = instruccion.compilar(ast, TsgGlobal)
+            if isinstance(value, Excepcion):
+                ast.setExcepciones(value)
+        Excepciones = ast.getExcepciones()
         consola = generador.getCode()
         return json.dumps(consola)
     except:
         print("Error al ejecutar las instrucciones :c")
+
+@app.route('/errores')
+def getErrores():
+    global Excepciones
+    aux = []
+    for x in Excepciones:
+        aux.append(x.toString2())
+    return {'valores': aux}
 
 if __name__ == '__main__':
     app.run(debug = True, port=5200)

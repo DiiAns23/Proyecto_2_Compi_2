@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
-from Symbol.Environment import *
+from TablaSimbolos.Tabla_Simbolos import *
 
 class Instruccion(ABC):
     
-    def __init__(self, line, column):
-        self.line = line
-        self.column = column
+    def __init__(self, fila, colum):
+        self.fila = fila
+        self.colum = colum
     
     @abstractmethod
-    def compilar(self, environment):
+    def compilar(self, tree, table):
         pass
     

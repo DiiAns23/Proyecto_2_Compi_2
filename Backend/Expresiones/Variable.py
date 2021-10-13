@@ -1,24 +1,25 @@
-from Symbol.Generator import *
+from TablaSimbolos.Excepcion import Excepcion
+from TablaSimbolos.Generador import *
 from Abstract.Expression import *
 from Abstract.Return import *
 from Abstract.Tipo import *
 
 class Variable(Expression):
 
-    def __init__(self, id, line, column):
-        Expression.__init__(self, line, column)
+    def __init__(self, id, line, colum):
+        Expression.__init__(self, line, colum)
         self.id = id
 
-    def compilar(self, environment):
-        genAux = Generator()
+    def compilar(self,  tree, table):
+        genAux = Generador()
         generator = genAux.getInstance()
 
         generator.addComment("Compilacion de Acceso")
         
-        var = environment.getVar(self.id)
+        var = table.getTabla(self.id)
+
         if(var == None):
-            print("Error, no existe la variable")
-            return
+            return Excepcion("Semantico", "Error, no existe la variable '"+str(self.id)+"'", self.fila, self.colum)
 
         # Temporal para guardar variable
         temp = generator.addTemp()

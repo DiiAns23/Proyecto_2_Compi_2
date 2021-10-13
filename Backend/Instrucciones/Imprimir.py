@@ -1,7 +1,8 @@
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
-from Symbol.Generator import Generator
+from TablaSimbolos.Generador import *
+from TablaSimbolos.Excepcion import *
 
 class Imprimir(Instruccion):
 
@@ -10,10 +11,14 @@ class Imprimir(Instruccion):
         self.value = value
         self.newLine = newLine
     
-    def compilar(self, env):
+    def compilar(self, tree, table):
         for valor in self.value:
-            val = valor.compilar(env)
-            genAux = Generator()
+            val = valor.compilar(tree, table)
+            
+            if isinstance(val, Excepcion):
+                return val
+
+            genAux = Generador()
             generator = genAux.getInstance()
 
             if(val.type == Tipo.INT):
@@ -38,16 +43,16 @@ class Imprimir(Instruccion):
 
                 paramTemp = generator.addTemp()
                 
-                generator.addExp(paramTemp, 'P', env.size, '+')
+                generator.addExp(paramTemp, 'P', table.size, '+')
                 generator.addExp(paramTemp, paramTemp, '1', '+')
                 generator.setStack(paramTemp, val.value)
                 
-                generator.newEnv(env.size)
+                generator.newEnv(table.size)
                 generator.callFun('printString')
 
                 temp = generator.addTemp()
                 generator.getStack(temp, 'P')
-                generator.retEnv(env.size)
+                generator.retEnv(table.size)
             else:
                 print("POR HACER")
             

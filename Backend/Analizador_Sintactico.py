@@ -1,12 +1,15 @@
 from Abstract.Tipo import *
+from Expresiones.Relacionales import Relacionales
+from TablaSimbolos.Arbol import Arbol
+from TablaSimbolos.Excepcion import *
 from Expresiones.Variable import Variable
 from Instrucciones.Declaracion import Declaracion
 from Expresiones.Primitivos import *
 from Expresiones.Logicas import *
 from Expresiones.Aritmeticas import *
 from Instrucciones.Imprimir import *
-from Symbol.Environment import Environment
-from Symbol.Generator import Generator
+from TablaSimbolos.Tabla_Simbolos import *
+from TablaSimbolos.Generador import *
 import ply.yacc as yacc
 import ply.lex as lex
 from Analizador_Lexico import tokens
@@ -84,11 +87,12 @@ def p_imprimir2(t):
 
 def p_declaracion_tipo(t):
     '''declaracion_instr : ID IGUAL expresion DPUNTOS DPUNTOS tipo'''
+    t[0] = Declaracion(t[1], t[6], t.lineno(2),find_column(input, t.slice[2]),  t[3])
     #t[0] = Declaracion(t[1], t.lineno(2), find_column(input, t.slice[2]),t[6], t[3])
 
 def p_declaracion_non_tipo(t):
     '''declaracion_instr : ID IGUAL expresion'''
-    t[0] = Declaracion(t[1], t[3], t.lineno(2),find_column(input, t.slice[2]))
+    t[0] = Declaracion(t[1], None , t.lineno(2),find_column(input, t.slice[2]), t[3])
     #t[0] = Declaracion(t[1], t.lineno(2), find_column(input, t.slice[2]),None, t[3])
 
 def p_declaracion_for(t):
@@ -292,6 +296,12 @@ def p_expresion_binaria(t):
                   | expresion DIV expresion
                   | expresion OR expresion
                   | expresion AND expresion
+                  | expresion IGUALDAD expresion
+                  | expresion DIFERENTE expresion
+                  | expresion MAYOR expresion
+                  | expresion MENOR expresion
+                  | expresion MAYORI expresion
+                  | expresion MENORI expresion
                   '''
     if t[2] == '+'  : 
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.MAS, t.lineno(2), find_column(input, t.slice[2]))
@@ -311,22 +321,22 @@ def p_expresion_binaria(t):
         print("Modulo")
         #t[0] = Aritmetica(OperadorAritmetico.MOD, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '==': 
-        print("Igualdad")
+        t[0] = Relacionales(t[1], t[3], OperadorRelacional.IGUALDAD,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.IGUALDAD, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '!=': 
-        print("Desigualdad")
+        t[0] = Relacionales(t[1], t[3], OperadorRelacional.DIFERENTE,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.DIFERENTE, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '>': 
-        print("Mayor")
+        t[0] = Relacionales(t[1], t[3], OperadorRelacional.MAYOR,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.MAYOR, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '<': 
-        print("Menor")
+        t[0] = Relacionales(t[1], t[3], OperadorRelacional.MENOR,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.MENOR, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '>=': 
-        print("Mayor igual")
+        t[0] = Relacionales(t[1], t[3], OperadorRelacional.MAYORI,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.MAYORI, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '<=':
-        print("Menor igual")
+        t[0] = Relacionales(t[1], t[3], OperadorRelacional.MENORI,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.MENORI, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '||':
         t[0] = Logicas(t[1], t[3],OperadorLogico.OR, t.lineno(2), find_column(input, t.slice[2]))
@@ -415,23 +425,17 @@ def p_tipo(t):
             | RSTRING
             | RLIST'''
     if t[1] ==  "Int64":
-        print("Entero")
-        #t[0] = TIPO.ENTERO
+        t[0] = Tipo.INT
     elif t[1] == "Float64":
-        print("Float")
-        #t[0] = TIPO.FLOAT
+        t[0] = Tipo.FLOAT
     elif t[1] == "Bool":
-        print("Booleano")
-        #t[0] = TIPO.BOOL
+        t[0] = Tipo.BOOL
     elif t[1] == "Char":
-        print("Char")
-        #t[0] = TIPO.CHAR
+        t[0] = Tipo.CHAR
     elif t[1] == "String":
-        print("String")
-        #t[0] = TIPO.STRING
+        t[0] = Tipo.STRING
     elif t[1] == "List":
-        print("List")
-        #t[0] = TIPO.ARRAY
+        t[0] = Tipo.ARRAY
 
 def agregarNativas(ast):
     nombre = "uppercase"
@@ -543,15 +547,21 @@ def parse(inp):
 # print("ARCHIVO DE SALIDA:")
 
 
-# genAux = Generator()
+# genAux = Generador()
 # genAux.cleanAll()
 # generador = genAux.getInstance()
 
-# newEnt = Environment(None)
-# ast = parse(entrada)
+# instrucciones = parse(entrada)
+# ast = Arbol(instrucciones)
+# TsgGlobal = Tabla_Simbolo()
+# ast.setTSglobal(TsgGlobal)
 # try:
-#     for instruccion in ast:
-#         instruccion.compilar(newEnt)
+#     for instruccion in ast.getInst():
+#         value = instruccion.compilar(ast, TsgGlobal)
+#         if isinstance(value, Excepcion):
+#             ast.setExcepciones(value)
+#     for error in ast.getExcepciones():
+#         print(error.toString2())
 #     print(generador.getCode())
 # except:
 #     print("Error al ejecutar las instrucciones :c")
