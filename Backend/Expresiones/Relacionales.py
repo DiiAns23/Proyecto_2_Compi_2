@@ -20,7 +20,7 @@ class Relacionales(Expression):
         
         left = self.left.compilar(tree, table)
         right = None
-        result =Return(None, Tipo.BOOL, False)
+        result = Return(None, Tipo.BOOL, False)
 
         if left.getTipo() != Tipo.BOOL:
             right = self.right.compilar(tree, table)
@@ -28,8 +28,35 @@ class Relacionales(Expression):
                 self.checkLabels()
                 generador.addIf(left.getValue(), right.getValue(), self.getOp(), self.getTrueLbl())
                 generador.addGoto(self.getFalseLbl())
+            
             elif left.type == Tipo.STRING and right.type == Tipo.STRING:
-                print("Igualdad de cadenas")
+                generador.fcompareString()
+                paramTemp = generador.addTemp()
+                
+                generador.addExp(paramTemp, 'P', table.size, '+')
+                generador.addExp(paramTemp, paramTemp, '1', '+')
+                generador.setStack(paramTemp, left.getValue())
+
+                generador.addExp(paramTemp, paramTemp, '1', '+')
+                generador.setStack(paramTemp, right.getValue())
+                
+                generador.newEnv(table.size)
+                generador.callFun('compareString')
+
+                temp = generador.addTemp()
+                generador.getStack(temp, 'P')
+                generador.retEnv(table.size)
+                
+                
+                self.checkLabels()
+                generador.addIf(temp,self.getNum(), "==", self.trueLbl)
+                generador.addGoto(self.falseLbl)
+                
+                result.trueLbl = self.trueLbl
+                result.falseLbl = self.falseLbl
+
+                return result 
+
         else:
             gotoR = generador.newLabel()
             leftTmp  = generador.addTemp()
@@ -93,3 +120,9 @@ class Relacionales(Expression):
             return '=='
         elif self.type == OperadorRelacional.DIFERENTE:
             return '!='
+
+    def getNum(self):
+        if self.type == OperadorRelacional.IGUALDAD:
+            return '1'
+        if self.type == OperadorRelacional.DIFERENTE:
+            return '0'

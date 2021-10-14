@@ -19,7 +19,7 @@ class Variable(Expression):
         var = table.getTabla(self.id)
 
         if(var == None):
-            return Excepcion("Semantico", "Error, no existe la variable '"+str(self.id)+"'", self.fila, self.colum)
+            return Excepcion("Semantico", "Error no existe la variable '"+str(self.id)+"'", self.fila, self.colum)
 
         # Temporal para guardar variable
         temp = generator.addTemp()
