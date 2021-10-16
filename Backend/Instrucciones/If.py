@@ -24,7 +24,8 @@ class If(Instruccion):
         if condicion.getTipo() == Tipo.BOOL:
             generator.putLabel(condicion.getTrueLbl())
             for instruccion in self.bloqueIf:
-                result = instruccion.compilar(tree, table)
+                entorno = Tabla_Simbolo(table)
+                result = instruccion.compilar(tree, entorno)
                 if isinstance(result, Excepcion):
                     tree.setExcepciones(result)
             
@@ -34,7 +35,8 @@ class If(Instruccion):
             generator.putLabel(condicion.getFalseLbl())
             if self.bloqueElse != None:
                 for instruccion in self.bloqueElse:
-                    result = instruccion.compilar(tree, table)
+                    entorno = Tabla_Simbolo(table)
+                    result = instruccion.compilar(tree, entorno)
                     if isinstance(result, Excepcion):
                         tree.setExcepciones(result)
             elif self.bloqueElif != None:

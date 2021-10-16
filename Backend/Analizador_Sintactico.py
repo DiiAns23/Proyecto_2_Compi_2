@@ -1,4 +1,7 @@
 from Abstract.Tipo import *
+from Instrucciones.For import For
+from Instrucciones.While import While
+from Instrucciones.Declaracion_Arrays import Declaracion_Arrays
 from Instrucciones.If import *
 from Expresiones.Relacionales import *
 from TablaSimbolos.Arbol import Arbol
@@ -98,7 +101,7 @@ def p_declaracion_non_tipo(t):
 
 def p_declaracion_for(t):
     'declaracion_instr  :   ID'
-    #t[0] = Declaracion(t[1], t.lineno(1), find_column(input, t.slice[1]),None,None)
+    t[0] = Declaracion(t[1], None, t.lineno(1), find_column(input, t.slice[1]), None)
 
 def p_declaracion_local(t):
     '''declaracion_local : RLOCAL ID'''
@@ -118,6 +121,7 @@ def p_declaracion_global1(t):
 
 def p_declaracion_array(t):
     'declaracion_instr : ID IGUAL CORI parametros_ll CORD'
+    t[0] = Declaracion_Arrays(t[1], t.lineno(2),find_column(input, t.slice[2]), t[4])
     #t[0] = Declaracion(t[1], t.lineno(1), find_column(input, t.slice[1]), TIPO.ARRAY, t[4])
 
 def p_declaracion_array_2(t):
@@ -182,11 +186,11 @@ def p_condicional_if_3(t):
 
 def p_loop_while_1(t):
     '''loop_while : RWHILE expresion instrucciones REND'''
-    #t[0] = While(t[2], t[3], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = While(t[2], t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_loop_for_1(t):
     '''loop_for : RFOR declaracion_instr RIN rango instrucciones REND'''
-   # t[0] = For(t[2], t[4], t[5], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = For(t[2], t[4], t[5], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_loop_for_2(t):
     '''loop_for : RFOR declaracion_instr RIN expresion instrucciones REND'''
@@ -303,6 +307,8 @@ def p_expresion_binaria(t):
                   | expresion MENOR expresion
                   | expresion MAYORI expresion
                   | expresion MENORI expresion
+                  | expresion POT expresion
+                  | expresion MOD expresion
                   '''
     if t[2] == '+'  : 
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.MAS, t.lineno(2), find_column(input, t.slice[2]))
@@ -316,11 +322,9 @@ def p_expresion_binaria(t):
     elif t[2] == '/': 
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.DIV, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '^': 
-        print("Potencia")
-        #t[0] = Aritmetica(OperadorAritmetico.POT, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
+        t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.POT, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '%': 
-        print("Modulo")
-        #t[0] = Aritmetica(OperadorAritmetico.MOD, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
+        t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.MOD, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '==': 
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.IGUALDAD,t.lineno(2), find_column(input, t.slice[2]) )
         #t[0] = Relacional(OperadorRelacional.IGUALDAD, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
@@ -350,8 +354,7 @@ def p_expresion_unaria(t):
     '''expresion : MENOS expresion %prec UMENOS
                     | NOT expresion %prec UNOT'''
     if t[1] == '-':
-        print("Unaria -")
-        #t[0] = Aritmetica(OperadorAritmetico.UME, t[2], None, t.lineno(1), find_column(input, t.slice[1]))
+        t[0] = Aritmeticas(None, t[2], OperadorAritmetico.UME, t.lineno(1), find_column(input, t.slice[1]))
     elif t[1] == '!':
         t[0] = Logicas(t[2], None,OperadorLogico.NOT,  t.lineno(1), find_column(input, t.slice[1]))
 

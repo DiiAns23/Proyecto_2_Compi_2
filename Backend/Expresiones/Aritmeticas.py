@@ -17,14 +17,31 @@ class Aritmeticas(Expression):
     def compilar(self, tree, table):
         genAux = Generador()
         generator = genAux.getInstance()
-        leftValue = self.left.compilar(tree, table)
-
-        rightValue = self.right.compilar(tree, table)
-
-        temp = generator.addTemp()
+        temp = ''
         op = ''
-        if (self.getTipo() == OperadorAritmetico.MAS):
+
+        if self.left != None:
+            leftValue = self.left.compilar(tree, table)
+        if self.right != None:
+            rightValue = self.right.compilar(tree, table)
+
+        if (self.getTipo() == OperadorAritmetico.UME):
+            op = '-'
+            temp = generator.addTemp()
+            if rightValue.getTipo() == Tipo.INT:
+                generator.addExp(temp, 0, rightValue.getValue(), op)
+                return Return(temp, Tipo.INT, True)
+            
+            if rightValue.getTipo() == Tipo.FLOAT:
+                generator.addExp(temp, 0, rightValue.getValue(), op)
+                return Return(temp, Tipo.FLOAT, True)
+
+            return Excepcion("Semantico", "Operacion 'Resta' no permitida en: ", self.fila, self.column)          
+
+
+        elif (self.getTipo() == OperadorAritmetico.MAS):
             op = '+'
+            temp = generator.addTemp()
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
                 generator.addExp(temp, leftValue.getValue(), rightValue.getValue(), op)
                 return Return(temp, Tipo.INT, True)
@@ -45,6 +62,7 @@ class Aritmeticas(Expression):
             
         elif(self.getTipo() == OperadorAritmetico.MEN):
             op = '-'
+            temp = generator.addTemp()
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
                 generator.addExp(temp, leftValue.getValue(), rightValue.getValue(), op)
                 return Return(temp, Tipo.INT, True)
@@ -66,27 +84,49 @@ class Aritmeticas(Expression):
         elif(self.getTipo() == OperadorAritmetico.POR):
             op = '*'
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
+                temp = generator.addTemp()
                 generator.addExp(temp, leftValue.getValue(), rightValue.getValue(), op)
                 return Return(temp, Tipo.INT, True)
             
             if leftValue.getTipo() == Tipo.FLOAT and rightValue.getTipo() == Tipo.INT:
+                temp = generator.addTemp()
                 generator.addExp(temp, leftValue.getValue(), rightValue.getValue(), op)
                 return Return(temp, Tipo.FLOAT, True)
             
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.FLOAT:
+                temp = generator.addTemp()
                 generator.addExp(temp, leftValue.getValue(), rightValue.getValue(), op)
                 return Return(temp, Tipo.FLOAT, True)
             
             if leftValue.getTipo() == Tipo.FLOAT and rightValue.getTipo() == Tipo.FLOAT:
+                temp = generator.addTemp()
                 generator.addExp(temp, leftValue.getValue(), rightValue.getValue(), op)
                 return Return(temp, Tipo.FLOAT, True)
 
-            #Pendiente la concatenacion de strings
+            if leftValue.getTipo() == Tipo.STRING and rightValue.getTipo() == Tipo.STRING:
+                generator.fconcatString()
+                t8 = generator.addTemp()
+                t9 = generator.addTemp()
+
+                generator.addExp(t8, 'P', table.size,'+' )
+                generator.addExp(t8, t8, '1', '+')
+
+                generator.setStack(t8, leftValue.getValue())
+                generator.addExp(t8,t8,'1','+')
+                generator.setStack(t8, rightValue.getValue())
+
+                generator.newEnv(table.size)
+                generator.callFun('concatString')
+                generator.getStack(t9, 'P')
+                generator.retEnv(table.size)
+
+                return Return(t9, Tipo.STRING, False)
 
             return Excepcion("Semantico", "Operacion 'Multiplicacion' no permitida en: ", self.fila, self.column)
 
         elif(self.getTipo() == OperadorAritmetico.DIV):
             op = '/' 
+            temp = generator.addTemp()
             bandera = False
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
                 bandera = True
@@ -112,11 +152,54 @@ class Aritmeticas(Expression):
                 return Return(temp, Tipo.FLOAT, True)
             return Excepcion("Semantico", "Operacion 'Division' no permitida en: ", self.fila, self.column)
 
-
         elif (self.getTipo() == OperadorAritmetico.POT):
-            op = "*"
+            tipo = ''
+            if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
+                tipo = Tipo.INT
+            elif leftValue.getTipo() == Tipo.FLOAT and rightValue.getTipo() == Tipo.INT:
+                tipo = Tipo.FLOAT
+            elif leftValue.getTipo() == Tipo.STRING and rightValue.getTipo() == Tipo.INT:
+                tipo = Tipo.STRING
+            else:
+                return Excepcion("Semantico","Operacion 'Potencia' no permitida en ", self.fila, self.colum)
 
-        return Return(temp, Tipo.INT, True)
+            temp = generator.addTemp()
+            generator.fPotencia()
+
+            t5 = generator.addTemp()
+
+            generator.addExp(t5, 'P', table.size,'+')
+            generator.addExp(t5,t5,'1','+')
+
+            generator.setStack(t5, leftValue.getValue())
+            generator.addExp(t5, t5,'1','+')
+            generator.setStack(t5, rightValue.getValue())
+
+            generator.newEnv(table.size)
+            generator.callFun('potencia')
+
+            generator.getStack(temp, 'P')
+
+            generator.retEnv(table.size)
+
+            return Return(temp, tipo, True)
+        
+        elif self.getTipo() == OperadorAritmetico.MOD:
+            tipo = ''
+            if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
+                tipo = Tipo.INT
+            elif leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.FLOAT:
+                tipo = Tipo.FLOAT
+            elif leftValue.getTipo() == Tipo.FLOAT and rightValue.getTipo() == Tipo.INT:
+                tipo = Tipo.FLOAT
+            elif leftValue.getTipo() == Tipo.FLOAT and rightValue.getTipo() == Tipo.FLOAT:
+                tipo = Tipo.FLOAT
+            else:
+                return Excepcion("Semantico","Operacion 'Modulo' no permitida en ", self.fila, self.colum)
+            temp = generator.addTemp()
+            generator.setImport('math')
+            generator.addModulo(temp, leftValue.getValue(), rightValue.getValue())
+            return Return(temp, tipo, True)
 
     def getTipo(self):
         return self.type
