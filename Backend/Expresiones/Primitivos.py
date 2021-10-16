@@ -37,7 +37,7 @@ class Primitivos(Expression):
             return ret
         elif self.type == Tipo.STRING:
             retTemp = generator.addTemp()
-            generator.addExp(retTemp, 'H', '', '')
+            generator.addAsig(retTemp, 'H')
 
             for char in str(self.value):
                 generator.setHeap('H', ord(char))   # heap[H] = NUM;

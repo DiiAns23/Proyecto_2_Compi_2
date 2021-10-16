@@ -30,32 +30,67 @@ class Relacionales(Expression):
                 generador.addGoto(self.getFalseLbl())
             
             elif left.type == Tipo.STRING and right.type == Tipo.STRING:
-                generador.fcompareString()
-                paramTemp = generador.addTemp()
-                
-                generador.addExp(paramTemp, 'P', table.size, '+')
-                generador.addExp(paramTemp, paramTemp, '1', '+')
-                generador.setStack(paramTemp, left.getValue())
+                if self.getOp() == '==' or self.getOp() == '!=':
+                    generador.fcompareString()
+                    paramTemp = generador.addTemp()
+                    
+                    generador.addExp(paramTemp, 'P', table.size, '+')
+                    generador.addExp(paramTemp, paramTemp, '1', '+')
+                    generador.setStack(paramTemp, left.getValue())
 
-                generador.addExp(paramTemp, paramTemp, '1', '+')
-                generador.setStack(paramTemp, right.getValue())
-                
-                generador.newEnv(table.size)
-                generador.callFun('compareString')
+                    generador.addExp(paramTemp, paramTemp, '1', '+')
+                    generador.setStack(paramTemp, right.getValue())
+                    
+                    generador.newEnv(table.size)
+                    generador.callFun('compareString')
 
-                temp = generador.addTemp()
-                generador.getStack(temp, 'P')
-                generador.retEnv(table.size)
-                
-                
-                self.checkLabels()
-                generador.addIf(temp,self.getNum(), "==", self.trueLbl)
-                generador.addGoto(self.falseLbl)
-                
-                result.trueLbl = self.trueLbl
-                result.falseLbl = self.falseLbl
+                    temp = generador.addTemp()
+                    generador.getStack(temp, 'P')
+                    generador.retEnv(table.size)
+                    
+                    
+                    self.checkLabels()
+                    generador.addIf(temp,self.getNum(), "==", self.trueLbl)
+                    generador.addGoto(self.falseLbl)
+                    
+                    result.trueLbl = self.trueLbl
+                    result.falseLbl = self.falseLbl
 
-                return result 
+                    return result
+                else:
+                    generador.frelationalString(self.getOp())
+                    paramTemp = generador.addTemp()
+                    
+                    generador.addExp(paramTemp, 'P', table.size, '+')
+                    generador.addExp(paramTemp, paramTemp, '1', '+')
+                    generador.setStack(paramTemp, left.getValue())
+
+                    generador.addExp(paramTemp, paramTemp, '1', '+')
+                    generador.setStack(paramTemp, right.getValue())
+                    
+                    generador.newEnv(table.size)
+                    if self.getOp() == '>':
+                        generador.callFun('relationalStringM')
+                    elif self.getOp() == '<':
+                        generador.callFun('relationalStringm')
+                    elif self.getOp() == '>=':
+                        generador.callFun('relationalStringMI')
+                    elif self.getOp() == '<=':
+                        generador.callFun('relationalStringmI')
+
+                    temp = generador.addTemp()
+                    generador.getStack(temp, 'P')
+                    generador.retEnv(table.size)
+                    
+                    
+                    self.checkLabels()
+                    generador.addIf(temp,'1', "==", self.trueLbl)
+                    generador.addGoto(self.falseLbl)
+                    
+                    result.trueLbl = self.trueLbl
+                    result.falseLbl = self.falseLbl
+
+                    return result                   
 
         else:
             gotoR = generador.newLabel()
@@ -70,7 +105,7 @@ class Relacionales(Expression):
 
             generador.putLabel(gotoR)
             
-            right = self.right.compile(tree, table)
+            right = self.right.compilar(tree, table)
             if right.type != Tipo.BOOL:
                 print("Error, no se pueden comparar")
                 return Excepcion("Semantico","No se pueden comparar", self.fila, self.colum)
@@ -92,7 +127,7 @@ class Relacionales(Expression):
             generador.addIf(leftTmp, rightTemp, self.getOp(), self.trueLbl)
             generador.addGoto(self.falseLbl)
             
-        generador.addComment("FIN DE EXPRESION RELACIONAL")
+        generador.addComment("Fin de la expresion Relacional")
         generador.addSpace()
         result.trueLbl = self.trueLbl
         result.falseLbl = self.falseLbl

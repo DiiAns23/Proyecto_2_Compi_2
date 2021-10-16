@@ -18,6 +18,11 @@ class Generador:
         self.printString = False
         self.compareString = False
         self.concatString = False
+        self.potencia = False
+        self.relacionales = ['>', '<', '>=', '<=']
+        #Lista de Imports
+        self.imports = []
+        self.imports2 = ['fmt','math']
         
     def cleanAll(self):
         # Contadores
@@ -33,13 +38,36 @@ class Generador:
         self.temps = []
         # Lista de Nativas
         self.printString = False
+        self.compareString = False
+        self.concatString = False
+        self.potencia = False
+        self.relationalString = False
+        #Lista de Imports
+        self.imports = []
+        self.imports2 = ['fmt','math']
         Generador.generator = Generador()
+
     
+    #############
+    # IMPORTS
+    #############
+
+    def setImport(self, lib):
+        if lib in self.imports2:
+            self.imports2.remove(lib)
+        else:
+            return
+
+        ret = f'import(\n\t\"{lib}\"\n);\n'
+        self.imports.append(ret)
     #############
     # CODE
     #############
     def getHeader(self):
-        ret = '/*----HEADER----*/\npackage main;\n\nimport (\n\t"fmt"\n)\n\n'
+        ret = '/*----HEADER----*/\npackage main;\n\n'
+        if len(self.imports)>0:
+            for temp in range(len(self.imports)):
+                ret += self.imports[temp]
         if len(self.temps) > 0:
             ret += 'var '
             for temp in range(len(self.temps)):
@@ -75,6 +103,7 @@ class Generador:
 
     def addSpace(self):
         self.codeIn("\n")
+        
 
     ########################
     # Manejo de Temporales
@@ -115,8 +144,13 @@ class Generador:
     # EXPRESIONES
     ###################
     def addExp(self, result, left, right, op):
-        self.codeIn(f'{result}={left}{op}{right};\n')
+        self.codeIn(f'{result} = {left} {op} {right};\n')
     
+    def addModulo(self, result, left, right):
+        self.codeIn(f'{result} = math.Mod({left}, {right});\n')
+    
+    def addAsig(self, result, left):
+        self.codeIn(f'{result} = {left};\n')
     ###################
     # FUNCS
     ###################
@@ -155,22 +189,25 @@ class Generador:
     # HEAP
     ###############
     def setHeap(self, pos, value):
-        self.codeIn(f'heap[int({pos})]={value};\n')
+        self.codeIn(f'heap[int({pos})] = {value};\n')
 
     def getHeap(self, place, pos):
-        self.codeIn(f'{place}=heap[int({pos})];\n')
+        self.codeIn(f'{place} = heap[int({pos})];\n')
 
     def nextHeap(self):
         self.codeIn('H=H+1;\n')
 
     # INSTRUCCIONES
     def addPrint(self, type, value):
+        self.setImport('fmt')
         self.codeIn(f'fmt.Printf("%{type}", int({value}));\n')
     
     def printFloat(self, type, value):
+        self.setImport('fmt')
         self.codeIn(f'fmt.Printf("%{type}", {value});\n')
     
     def printTrue(self):
+        self.setImport('fmt')
         self.addIdent()
         self.addPrint("c", 116)
         self.addIdent()
@@ -181,6 +218,7 @@ class Generador:
         self.addPrint("c", 101)
 
     def printFalse(self):
+        self.setImport('fmt')
         self.addIdent()
         self.addPrint("c", 102)
         self.addIdent()
@@ -195,7 +233,17 @@ class Generador:
     ##############
     # NATIVES
     ##############
+    
+    def ftoString(self):
+        if self.toString:
+            return
+        self.inNatives = True
+        self.addBeginFunc('toString')
+
+        self.inNatives = False
+    
     def fPrintString(self):
+        self.setImport('fmt')
         if(self.printString):
             return
         self.printString = True
@@ -289,14 +337,204 @@ class Generador:
             return
         self.concatString = True
         self.inNatives = True
+
+        self.addBeginFunc('concatString')
         
+        returnLbl = self.newLabel()
+        Lbl1 = self.newLabel()
+        Lbl2 = self.newLabel()
+        Lbl3 = self.newLabel()
         t3 = self.addTemp()
         t4 = self.addTemp()
+        t5 = self.addTemp()
+        t6 = self.addTemp()
+        t7 = self.addTemp()
+
+        self.addExp(t3, 'H',"","")
+        self.addExp(t4,'P','1','+')
+        self.getStack(t6, t4)
+        self.addExp(t5, 'P', '2', '+')
+
+        self.putLabel(Lbl1)
+        self.addIdent()
+
+        self.getHeap(t7, t6)
+        self.addIdent()
+        self.addIf(t7, '-1','==', Lbl2)
+        self.addIdent()
+        self.setHeap('H', t7)
+        self.addIdent()
+        self.addExp('H', 'H','1','+')
+        self.addIdent()
+        self.addExp(t6,t6,'1', '+')
+        self.addIdent()
+        self.addGoto(Lbl1)
+
+        self.putLabel(Lbl2)
+
+        self.addIdent()
+        self.getStack(t6,t5)
+
+        self.putLabel(Lbl3)
+        self.addIdent()
+        self.getHeap(t7, t6)
+        self.addIdent()
+        self.addIf(t7, '-1','==', returnLbl)
+        self.addIdent()
+        self.setHeap('H', t7)
+        self.addIdent()
+        self.addExp('H', 'H','1','+')
+        self.addIdent()
+        self.addExp(t6,t6,'1', '+')
+        self.addIdent()
+        self.addGoto(Lbl3)
+
+        self.putLabel(returnLbl)
+        self.addIdent()
+        self.setHeap('H', '-1')
+        self.addIdent()
+        self.addExp('H', 'H','1', '+')
+        self.addIdent()
+        self.setStack('P', t3)
+        self.addEndFunc()
+        self.inNatives = False
 
     def fPotencia(self):
-        if self.pontencia:
+        if self.potencia:
             return
         self.potencia = True
         self.inNatives = True
-        #Aqui va todo el codigo para la potencia 
+        self.addBeginFunc('potencia')
+
+        # Labels a utilizar
+        Lbl0 = self.newLabel()
+        Lbl1 = self.newLabel()
+        Lbl2 = self.newLabel()
+        Lbl3 = self.newLabel()
+
+        # Temporales a utilizar
+        t1 = self.addTemp()
+        t2 = self.addTemp()
+        t3 = self.addTemp()
+        t4 = self.addTemp()
+
+        #Escritura del codigo
+        self.addExp(t2, 'P', '1','+')
+        self.getStack(t1, t2)
+        self.addExp(t3,t1,'','')
+        self.addExp(t4,t1,'','')
+        self.addExp(t2,'P','2','+')
+        self.getStack(t1,t2)
+        self.addIf(t1,'0','==', Lbl1)
+        self.putLabel(Lbl2)
+        self.addIdent()
+        self.addIf(t1, '1','<=',Lbl0)
+        self.addIdent()
+        self.addExp(t3, t3,t4,'*')
+        self.addIdent()
+        self.addExp(t1,t1,'1', '-')
+        self.addIdent()
+        self.addGoto(Lbl2)
+        self.putLabel(Lbl0)
+        self.addIdent()
+        self.setStack('P', t3)
+        self.addIdent()
+        self.addGoto(Lbl3)
+        self.putLabel(Lbl1)
+        self.addIdent()
+        self.setStack('P', '1')
+        self.putLabel(Lbl3)
+        self.addEndFunc()
+        self.addSpace()
         self.inNatives = False
+
+    def frelationalString(self, op):
+        if op in self.relacionales:
+            self.relacionales.remove(op)
+        else:
+            return
+        
+        if op == '>':
+            self.addBeginFunc('relationalStringM')
+        elif op == '<':
+            self.addBeginFunc('relationalStringm')
+        elif op == '>=':
+            self.addBeginFunc('relationalStringMI')
+        elif op == '<=':
+            self.addBeginFunc('relationalStringmI')
+
+
+        t2 = self.addTemp()
+        t3 = self.addTemp()
+        t4 = self.addTemp()
+        t5 = self.addTemp()
+        t6 = self.addTemp()
+        t7 = self.addTemp()
+        t8 = self.addTemp()
+
+        Lbl1 = self.newLabel()
+        Lbl2 = self.newLabel()
+        Lbl3 = self.newLabel()
+        Lbl4 = self.newLabel()
+        Lbl5 = self.newLabel()
+        Lbl6 = self.newLabel()
+
+        self.addExp(t2, 'P', '1','+')
+        self.getStack(t3, t2)
+        self.addExp(t2, t2,'1','+')
+        self.getStack(t4, t2)
+        self.addExp(t5,'0','','')
+        self.addExp(t7,'0','','')
+        
+        
+        self.putLabel(Lbl1)
+        self.addIdent()
+        self.getHeap(t6, t3)
+        self.addIdent()
+        self.addIf(t6, '-1','==', Lbl2)
+        self.addIdent()
+        self.addExp(t5, t5, t6, '+')
+        self.addIdent()
+        self.addExp(t3, t3,'1','+')
+        self.addIdent()
+        self.addGoto(Lbl1)
+
+        
+        self.putLabel(Lbl2)
+        self.addIdent()
+        self.getHeap(t8,t4)
+        self.addIdent()
+        self.addIf(t8,'-1','==', Lbl3)
+        self.addIdent()
+        self.addExp(t7,t7,t8,'+')
+        self.addIdent()
+        self.addExp(t4,t4,'1','+')
+        self.addIdent()
+        self.addGoto(Lbl2)
+
+        self.putLabel(Lbl3)
+        self.addIdent()
+        self.addIf(t5, t7,op, Lbl4)
+        self.addIdent()
+        self.addGoto(Lbl5)
+
+        self.putLabel(Lbl4)
+        self.addIdent()
+        self.setStack('P', '1')
+        self.addIdent()
+        self.addGoto(Lbl6)
+
+        self.putLabel(Lbl5)
+        self.addIdent()
+        self.setStack('P', '0')
+        
+        self.putLabel(Lbl6)
+        self.addEndFunc()
+        self.addSpace()
+
+        self.inNatives = False
+
+        
+
+
+
