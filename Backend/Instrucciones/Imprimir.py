@@ -12,14 +12,15 @@ class Imprimir(Instruccion):
         self.newLine = newLine
     
     def compilar(self, tree, table):
+        genAux = Generador()
+        generator = genAux.getInstance()
         for valor in self.value:
             val = valor.compilar(tree, table)
             
             if isinstance(val, Excepcion):
+                if self.newLine:
+                    generator.addPrint("c", 10)
                 return val
-
-            genAux = Generador()
-            generator = genAux.getInstance()
 
             if(val.type == Tipo.INT):
                 generator.addPrint("d", val.value)
@@ -56,5 +57,5 @@ class Imprimir(Instruccion):
             else:
                 print("POR HACER")
             
-            if self.newLine:
-                generator.addPrint("c", 10)
+        if self.newLine:
+            generator.addPrint("c", 10)

@@ -1,9 +1,10 @@
 from Abstract.Tipo import *
-from Expresiones.Relacionales import Relacionales
+from Instrucciones.If import *
+from Expresiones.Relacionales import *
 from TablaSimbolos.Arbol import Arbol
 from TablaSimbolos.Excepcion import *
-from Expresiones.Variable import Variable
-from Instrucciones.Declaracion import Declaracion
+from Expresiones.Variable import *
+from Instrucciones.Declaracion import *
 from Expresiones.Primitivos import *
 from Expresiones.Logicas import *
 from Expresiones.Aritmeticas import *
@@ -169,15 +170,15 @@ def p_condicional_if_0(t):
 
 def p_condicional_if_1(t):
     '''condicional_if : expresion instrucciones'''
-    #t[0] = If(t[1],t[2],None, None, -1,-1)
+    t[0] = If(t[1], t[2], None, None,-1,-1)
 
 def p_condicional_if_2(t):
     '''condicional_if : expresion instrucciones RELSE instrucciones'''
-    #t[0] = If(t[1],t[2],t[4], None, -1, -1)
+    t[0] = If(t[1], t[2],t[4], None,-1,-1)
 
 def p_condicional_if_3(t):
     '''condicional_if : expresion instrucciones RELSEIF condicional_if'''
-    #t[0] = If(t[1],t[2],None, t[4], -1, -1)
+    t[0] = If(t[1],t[2],None, t[4], -1, -1)
 
 def p_loop_while_1(t):
     '''loop_while : RWHILE expresion instrucciones REND'''

@@ -23,7 +23,7 @@ class Declaracion(Instruccion):
                 
                 val = self.value.compilar( tree, table)
 
-                generator.addComment("Fin de valor de variable")
+                
                 if val.type != self.tipo:
                     generator.addComment("Se ha creado un error en la creacion de la variable")
                     return Excepcion("Semantico", "Error de tipos", self.fila, self.colum)
@@ -50,13 +50,12 @@ class Declaracion(Instruccion):
                     generator.putLabel(tempLbl)
                 else:
                     generator.setStack(tempPos, val.value)
+                generator.addComment("Fin de valor de variable")
                 generator.addSpace()
             else:
                 generator.addComment("Compilacion de valor de variable")
                 # Compilacion de valor que estamos asignando
                 val = self.value.compilar( tree, table)
-
-                generator.addComment("Fin de valor de variable")
 
                 # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
                 simbolo = table.setTabla(self.id, val.type, (val.type == Tipo.STRING or val.type == Tipo.STRUCT))
@@ -81,6 +80,7 @@ class Declaracion(Instruccion):
                     generator.putLabel(tempLbl)
                 else:
                     generator.setStack(tempPos, val.value)
+                generator.addComment("Fin de valor de variable")
                 generator.addSpace()
         else:
             generator.addComment("Compilacion de valor de variable")
