@@ -53,7 +53,7 @@ class Primitivos(Expression):
     def getTipo(self):
         return self.type
     def getValue(self):
-        return self.value
+        return int(self.value)
     def setValue(self, value):
         self.value = value
     def setTipo(self, tipo):

@@ -1,6 +1,8 @@
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
+from Instrucciones.Break import *
+from Instrucciones.Continue import Continue
 from TablaSimbolos.Generador import *
 from TablaSimbolos.Excepcion import *
 from TablaSimbolos.Tabla_Simbolos import *
@@ -24,11 +26,23 @@ class While(Instruccion):
                 if isinstance(condicion, Excepcion): 
                     tree.setExcepciones(condicion)
                 generator.putLabel(condicion.getTrueLbl())
+
+                table.breakLbl = condicion.getFalseLbl()
+                table.continueLbl = Lbl0
+                
                 for instruccion in self.instrucciones:
                     entorno = Tabla_Simbolo(table)
+                    entorno.breakLbl = condicion.getFalseLbl()
+                    entorno.continueLbl = Lbl0
                     value = instruccion.compilar(tree, entorno)
                     if isinstance(value, Excepcion): 
                         tree.setExcepciones(condicion)
+                    if isinstance(value, Break):
+                        generator.addGoto(condicion.getFalseLbl())
+                    if isinstance(value, Continue):
+                        generator.addGoto(Lbl0)
+                table.breakLbl = ''
+                table.continueLbl = ''
                 generator.addGoto(Lbl0)
                 generator.putLabel(condicion.getFalseLbl())
                 generator.addComment("Finaliza Loop While")

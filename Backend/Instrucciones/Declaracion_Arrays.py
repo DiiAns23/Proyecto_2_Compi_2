@@ -27,10 +27,23 @@ class Declaracion_Arrays(Instruccion):
             apuntador = str(len(self.values)+1)
             generator.addExp('H','H',apuntador,'+')
             generator.addSpace()
+            tipo = ''
+            length = 0
             for value in self.values:
                 val = value.compilar(tree,table)
+                tipo = val.getTipo()
                 generator.setHeap(t1,val.getValue())
                 generator.addExp(t1,t1,'1','+')
                 generator.addSpace()
+                length += 1
+            simbolo = table.setTabla(self.id,self.tipo,True)
+            simbolo.setTipoAux(tipo)
+            simbolo.setLength(length)
+            tempPos = simbolo.pos
+            if(not simbolo.isGlobal):
+                tempPos = generator.addTemp()
+                generator.addExp(tempPos, 'P', simbolo.pos, "+")
+            generator.setStack(tempPos, t0)
+            
             generator.addComment('Fin de la compilacion del Array')
 

@@ -29,11 +29,15 @@ class Declaracion(Instruccion):
                 if val.type != self.tipo:
                     generator.addComment("Se ha creado un error en la creacion de la variable")
                     return Excepcion("Semantico", "Error de tipos", self.fila, self.colum)
-                # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
-                simbolo = table.setTabla(self.id, val.type, (val.type == Tipo.STRING or val.type == Tipo.STRUCT))
-                
-                if simbolo == "update":
-                    simbolo = table.updateTabla(self.id, val.type,((val.type == Tipo.STRING or val.type == Tipo.STRUCT)))
+
+                if val.getTipo()== Tipo.ARRAY:
+                    simbolo = table.setTabla(self.id, val.getTipo(), True, self.find)
+                    simbolo.setTipoAux(val.getTipoAux())
+                    simbolo.setLength(val.getLength())
+                    simbolo.setReferencia(True)
+                else:
+                    # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
+                    simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.STRING or val.type == Tipo.STRUCT), self.find)
 
                 # Obtencion de posicion de la variable
                 tempPos = simbolo.pos
@@ -62,11 +66,18 @@ class Declaracion(Instruccion):
                 # Compilacion de valor que estamos asignando
                 val = self.value.compilar(tree, table)
                 if isinstance(val, Excepcion): return val
-                # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
-                simbolo = table.setTabla(self.id, val.type, (val.type == Tipo.STRING or val.type == Tipo.STRUCT), self.find)
+
+                if val.getTipo() == Tipo.ARRAY:
+                    simbolo = table.setTabla(self.id, val.getTipo(), True, self.find)
+                    simbolo.setTipoAux(val.getTipoAux())
+                    simbolo.setLength(val.getLength())
+                    simbolo.setReferencia(val.getReferencia())
+                else:
+                    # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
+                    simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.STRING or val.type == Tipo.STRUCT), self.find)
 
                 # Obtencion de posicion de la variable
-                tempPos = simbolo.pos
+                tempPos = simbolo.getPos()
                 if(not simbolo.isGlobal):
                     tempPos = generator.addTemp()
                     generator.addExp(tempPos, 'P', simbolo.pos, "+")

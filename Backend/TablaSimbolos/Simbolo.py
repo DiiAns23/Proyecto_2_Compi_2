@@ -8,15 +8,17 @@ class Simbolo:
         self.pos = position
         self.isGlobal = globalVar
         self.inHeap = inHeap
-
         self.value = None
+        self.tipoAux = ''
+        self.length = 0
+        self.referencia = False
     
     def getTipo(self):
         return self.type
     def getId(self):
         return self.id
     def getPos(self):
-        return self.getPos
+        return self.pos
     def getInHeap(self):
         return self.inHeap
     
@@ -28,3 +30,24 @@ class Simbolo:
         self.pos = pos
     def setInHeap(self, value):
         self.inHeap = value
+    
+    def setTipoAux(self, tipo):
+        self.tipoAux = tipo
+
+    def getTipoAux(self):
+        return self.tipoAux
+
+    def setLength(self, length):
+        self.length = length
+    def getLength(self):
+        return self.length
+
+    def setReferencia(self, ref):
+        self.referencia = ref
+    def getReferencia(self):
+        return self.referencia
+    
+    def getValue(self):
+        return self.value
+    def setValue(self, value):
+        self.value = value

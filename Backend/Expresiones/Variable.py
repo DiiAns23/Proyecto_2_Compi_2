@@ -32,10 +32,15 @@ class Variable(Expression):
             generator.addExp(tempPos, 'P', var.pos, "+")
         generator.getStack(temp, tempPos)
 
+
+
         if var.type != Tipo.BOOL:
             generator.addComment("Fin compilacion acceso")
             generator.addSpace()
-            return Return(temp, var.type, True)
+            if var.type == Tipo.ARRAY:
+                return Return(temp, var.type, True, var.getTipoAux(), var.getLength(), var.getId())
+            else:
+                return Return(temp, var.type, True)
         if self.trueLbl == '':
             self.trueLbl = generator.newLabel()
         if self.falseLbl == '':

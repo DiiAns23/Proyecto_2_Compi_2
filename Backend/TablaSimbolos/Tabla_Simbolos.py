@@ -9,9 +9,13 @@ class Tabla_Simbolo:
         self.anterior = anterior
         
         # NUEVO
+        self.breakLbl = ''
+        self.continueLbl = ''
+        self.returnLbl = ''
         self.size = 0
         if(anterior != None):
             self.size = self.anterior.size
+
     
     def setTabla(self, id, tipo, inHeap, find = True):
         if find:
