@@ -1,10 +1,15 @@
 from Abstract.Tipo import *
-from Instrucciones.For import For
-from Instrucciones.While import While
-from Instrucciones.Declaracion_Arrays import Declaracion_Arrays
+from Instrucciones.Asignacion_Arrays import *
+from Expresiones.Array import Array
+from Instrucciones.Break import *
+from Instrucciones.Continue import *
+from Instrucciones.Return import *
+from Instrucciones.For import *
+from Instrucciones.While import *
+from Instrucciones.Declaracion_Arrays import *
 from Instrucciones.If import *
 from Expresiones.Relacionales import *
-from TablaSimbolos.Arbol import Arbol
+from TablaSimbolos.Arbol import *
 from TablaSimbolos.Excepcion import *
 from Expresiones.Variable import *
 from Instrucciones.Declaracion import *
@@ -130,7 +135,7 @@ def p_declaracion_array_2(t):
 
 def p_asignacion_array(t):
     'asignacion_array : ID arrays_1 IGUAL expresion'
-    #t[0] = Asignacion(t[1], t[2], t.lineno(1), find_column(input, t.slice[1]), t[4])
+    t[0] = Asignacion_Arrays(t[1], t[2], t[4],t.lineno(1), find_column(input, t.slice[1]))
 
 def p_inmutable_struct(t):
     'inmutable_struct : RSTRUCT ID params_structs REND'
@@ -202,15 +207,15 @@ def p_loop_for_3(t):
 
 def p_return(t):
     'r_return : RRETURN expresion'
-    #t[0] = Return(t[2], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = ReturnE(t[2], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_break(t):
     'r_break : RBREAK'
-    #t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
 
 def p_continue(t):
     'r_continue : RCONTINUE'
-    #t[0] = Continue(t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Continue(t.lineno(1), find_column(input, t.slice[1]))
 
 def p_rango(t):
     'rango : expresion DPUNTOS expresion'
@@ -369,7 +374,7 @@ def p_expresion_identificador(t):
 
 def p_expresion_array(t):
     'expresion : ID arrays_1'
-    #t[0] = Array(t[1], t.lineno(1), find_column(input, t.slice[1]), TIPO.ARRAY, t[2])
+    t[0] = Array(t[1],t[2], t.lineno(1), find_column(input, t.slice[1]) )
 
 def p_expresion_struct(t):
     'expresion : ID PUNTO asignacion_params'
@@ -542,31 +547,31 @@ def parse(inp):
     lexer.lineno = 1
     return parser.parse(inp)
 
-# f = open("Backend/entrada.txt", "r")
-# entrada = f.read()
-# print("ARCHIVO DE ENTRADA:")
-# print("")
-# print(entrada)
-# print("")
-# print("ARCHIVO DE SALIDA:")
+f = open("Backend/entrada.txt", "r")
+entrada = f.read()
+print("ARCHIVO DE ENTRADA:")
+print("")
+print(entrada)
+print("")
+print("ARCHIVO DE SALIDA:")
 
 
-# genAux = Generador()
-# genAux.cleanAll()
-# generador = genAux.getInstance()
+genAux = Generador()
+genAux.cleanAll()
+generador = genAux.getInstance()
 
-# instrucciones = parse(entrada)
-# ast = Arbol(instrucciones)
-# TsgGlobal = Tabla_Simbolo()
-# ast.setTSglobal(TsgGlobal)
-# try:
-#     for instruccion in ast.getInst():
-#         value = instruccion.compilar(ast, TsgGlobal)
-#         if isinstance(value, Excepcion):
-#             ast.setExcepciones(value)
-#     for error in ast.getExcepciones():
-#         print(error.toString2())
-#     print(generador.getCode())
-# except:
-#     print("Error al ejecutar las instrucciones :c")
+instrucciones = parse(entrada)
+ast = Arbol(instrucciones)
+TsgGlobal = Tabla_Simbolo()
+ast.setTSglobal(TsgGlobal)
+try:
+    for instruccion in ast.getInst():
+        value = instruccion.compilar(ast, TsgGlobal)
+        if isinstance(value, Excepcion):
+            ast.setExcepciones(value)
+    for error in ast.getExcepciones():
+        print(error.toString2())
+    print(generador.getCode())
+except:
+    print("Error al ejecutar las instrucciones :c")
 
