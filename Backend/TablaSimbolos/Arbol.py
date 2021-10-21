@@ -23,16 +23,15 @@ class Arbol:
     def getFunciones(self):
         return self.funciones
     
-    def setFunciones(self, idFunc, function):
-        if idFunc in self.funciones.keys():
-            print("Función repetida")
+    def setFunciones(self, function):
+        if function in self.funciones:
+            return "error"
         else:
             self.funciones.append(function)
     
-    def getFuncion(self, ide):
-        for function in self.funciones:
-            if function.ide == ide:
-                return function
+    def getFuncion(self, function):
+        if function in self.funciones:
+            return function
         return None
 
     def getExcepciones(self):

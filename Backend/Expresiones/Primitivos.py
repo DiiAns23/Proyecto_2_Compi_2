@@ -2,7 +2,6 @@ from Abstract.Expression import *
 from Abstract.Return import *
 from Abstract.Tipo import *
 from TablaSimbolos.Generador import *
-import uuid
 class Primitivos(Expression):
 
     def __init__(self, value, type, line, column):
@@ -46,7 +45,14 @@ class Primitivos(Expression):
             generator.setHeap('H', '-1')            # FIN DE CADENA
             generator.nextHeap()
 
-            return Return(retTemp, Tipo.STRING, True)
+            return Return(retTemp, self.type, True)
+        elif self.type == Tipo.CHAR:
+            retTemp = generator.addTemp()
+            generator.addAsig(retTemp, 'H')
+            generator.setHeap('H', ord(self.value))
+            generator.nextHeap()
+
+            return Return(retTemp, self.type, True)
         else:
             print('Por hacer')
     

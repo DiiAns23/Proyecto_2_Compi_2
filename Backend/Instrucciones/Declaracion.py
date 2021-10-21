@@ -13,6 +13,7 @@ class Declaracion(Instruccion):
         self.value = value
         self.tipo = tipo
         self.find = True
+        self.gosth = -1
     
     def compilar(self,  tree, table):
         genAux = Generador()
@@ -30,14 +31,14 @@ class Declaracion(Instruccion):
                     generator.addComment("Se ha creado un error en la creacion de la variable")
                     return Excepcion("Semantico", "Error de tipos", self.fila, self.colum)
 
-                if val.getTipo()== Tipo.ARRAY:
+                if val.getTipo()  == Tipo.ARRAY:
                     simbolo = table.setTabla(self.id, val.getTipo(), True, self.find)
                     simbolo.setTipoAux(val.getTipoAux())
                     simbolo.setLength(val.getLength())
                     simbolo.setReferencia(True)
                 else:
                     # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
-                    simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.STRING or val.type == Tipo.STRUCT), self.find)
+                    simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.CHAR or val.type == Tipo.STRING or val.type == Tipo.STRUCT or val.type == Tipo.ARRAY), self.find)
 
                 # Obtencion de posicion de la variable
                 tempPos = simbolo.pos
@@ -74,7 +75,7 @@ class Declaracion(Instruccion):
                     simbolo.setReferencia(val.getReferencia())
                 else:
                     # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
-                    simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.STRING or val.type == Tipo.STRUCT), self.find)
+                    simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.STRING or val.type == Tipo.STRUCT or val.type == Tipo.ARRAY or val.type == Tipo.CHAR), self.find)
 
                 # Obtencion de posicion de la variable
                 tempPos = simbolo.getPos()
@@ -100,7 +101,15 @@ class Declaracion(Instruccion):
                 generator.addSpace()
         else:
             generator.addComment("Compilacion de valor de variable")
-            value = "nothing"
+            simbolo = table.setTabla(self.id, Tipo.CHAR, True)
+            
+            tempPos = simbolo.getPos()
+            if(not simbolo.isGlobal):
+                tempPos = generator.addTemp()
+                generator.addExp(tempPos, 'P', simbolo.pos, "+")
+
+            generator.setStack(tempPos,self.gosth)
             generator.addComment("Fin de valor de variable")
-            simbolo = table.setTabla(self.id, Tipo.NULO, True)
+
+            return tempPos
 
