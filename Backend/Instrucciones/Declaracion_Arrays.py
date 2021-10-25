@@ -47,3 +47,12 @@ class Declaracion_Arrays(Instruccion):
             
             generator.addComment('Fin de la compilacion del Array')
 
+
+    def getTipo(self):
+        return self.tipo
+    def setId(self, id):
+        self.id = id
+    def getId(self):
+        return self.id
+    def getLength(self):
+        return self.length

@@ -1,4 +1,6 @@
 from Abstract.Tipo import *
+from Expresiones.Llamada_Funcion import Llamada_Funcion
+from Instrucciones.Funcion import Funcion
 from Instrucciones.Asignacion_Arrays import *
 from Expresiones.Array import Array
 from Instrucciones.Break import *
@@ -159,7 +161,7 @@ def p_declaracion_aux2(t):
 
 def p_llamada_function_1(t):
     'llamada_function : ID PARI parametros_ll PARD'
-    #t[0] = Llamada_Funcion(t[1],t[3], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Llamada_Funcion(t[1],t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_llamada_function_2(t):
     'llamada_function : ID PARI PARD'
@@ -167,7 +169,7 @@ def p_llamada_function_2(t):
 
 def p_declaracion_function_1(t):
     '''declaracion_function : RFUNCTION ID PARI parametros PARD instrucciones REND'''
-    #t[0] = Funcion(t[2], t[4], t[6], t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], t[4], t[6], t.lineno(2), find_column(input, t.slice[1]))
 
 def p_declaracion_function_2(t):
     '''declaracion_function : RFUNCTION ID PARI PARD instrucciones REND'''
@@ -199,11 +201,8 @@ def p_loop_for_1(t):
 
 def p_loop_for_2(t):
     '''loop_for : RFOR declaracion_instr RIN expresion instrucciones REND'''
-    #t[0] = For(t[2], [t[4]], t[5], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = For(t[2], [t[4]], t[5], t.lineno(1), find_column(input, t.slice[1]))
 
-def p_loop_for_3(t):
-    '''loop_for : RFOR declaracion_instr RIN CORI parametros_ll CORD instrucciones REND'''
-    #t[0] = For(t[2], [t[5]], t[7], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_return(t):
     'r_return : RRETURN expresion'
@@ -390,7 +389,7 @@ def p_expresion_array_3(t):
 
 def p_expresion_array_4(t):
     'expresion : CORI parametros_ll CORD'
-    #t[0] = Array(None, t.lineno(1), find_column(input, t.slice[1]), TIPO.ARRAY,None, t[2])
+    t[0] = Declaracion_Arrays('',t.lineno(1), find_column(input, t.slice[1]),t[2])
 
 def p_expresion_entero(t):
     'expresion : ENTERO'
@@ -403,7 +402,7 @@ def p_expresion_decimal(t):
 
 def p_expresion_char(t):
     'expresion : CHAR'
-    #t[0] = Primitivos(TIPO.CHAR, t[1], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Primitivos(t[1], Tipo.CHAR, t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_cadena(t):
     'expresion : CADENA'

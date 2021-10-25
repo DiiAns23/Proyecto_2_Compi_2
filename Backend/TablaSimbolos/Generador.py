@@ -1,3 +1,4 @@
+from typing import AsyncIterable
 from TablaSimbolos.Tabla_Simbolos import *
 
 class Generador:
@@ -42,6 +43,7 @@ class Generador:
         self.concatString = False
         self.potencia = False
         self.relationalString = False
+        self.printArray = False
         #Lista de Imports
         self.imports = []
         self.imports2 = ['fmt','math']
@@ -534,7 +536,14 @@ class Generador:
 
         self.inNatives = False
 
-        
+    def fPrintArray(self):
+        if self.printArray:
+            return
+        self.printArray = True
+        self.inNatives = True
 
+        self.addBeginFunc('printArray')
+
+        self.inNatives = False
 
 
