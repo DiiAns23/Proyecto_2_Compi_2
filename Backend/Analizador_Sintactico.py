@@ -1,7 +1,12 @@
 from Abstract.Tipo import *
-from Expresiones.Llamada_Funcion import Llamada_Funcion
+from Nativas.LowerCase import LowerCase
+from Nativas.UpperCase import UpperCase
+from Nativas.Float import Float
+from Nativas.Trunc import Trunc
+from Expresiones.Llamada_Funcion import *
 from Instrucciones.Funcion import Funcion
 from Instrucciones.Asignacion_Arrays import *
+from Nativas.Length import *
 from Expresiones.Array import Array
 from Instrucciones.Break import *
 from Instrucciones.Continue import *
@@ -169,11 +174,19 @@ def p_llamada_function_2(t):
 
 def p_declaracion_function_1(t):
     '''declaracion_function : RFUNCTION ID PARI parametros PARD instrucciones REND'''
-    t[0] = Funcion(t[2], t[4], t[6], t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], t[4], t[6],Tipo.NULO, t.lineno(2), find_column(input, t.slice[1]))
 
 def p_declaracion_function_2(t):
     '''declaracion_function : RFUNCTION ID PARI PARD instrucciones REND'''
-   # t[0] = Funcion(t[2], [], t[5], t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], None, t[5], Tipo.NULO, t.lineno(2), find_column(input, t.slice[1]))
+
+def p_declaracion_function_3(t):
+    '''declaracion_function : RFUNCTION ID PARI PARD DPUNTOS DPUNTOS tipo instrucciones REND'''
+    t[0] = Funcion(t[2], None, t[8], t[7], t.lineno(2), find_column(input, t.slice[1]))
+
+def p_declaracion_function_4(t):
+    '''declaracion_function : RFUNCTION ID PARI parametros PARD DPUNTOS DPUNTOS tipo instrucciones REND'''
+    t[0] = Funcion(t[2], t[4], t[9], t[8], t.lineno(2), find_column(input, t.slice[1]))
 
 def p_condicional_if_0(t):
     'condicional_ifs : RIF condicional_if'
@@ -447,45 +460,15 @@ def p_tipo(t):
 
 def agregarNativas(ast):
     nombre = "uppercase"
-    #params = [{'tipo':TIPO.STRING, 'ide':'uppercase##Param1'}]
+    params = [{'tipo':Tipo.STRING, 'ide':'uppercase##Param1'}]
     inst = []
-    #upper = UpperCase(nombre, params, inst, -1, -1)
-    #ast.setFunciones(upper)
+    upper = UpperCase(nombre, params, inst, Tipo.STRING, -1, -1)
+    ast.setFunciones('uppercase',upper)
 
     nombre = "lowercase"
-    #params = [{'tipo':TIPO.STRING, 'ide':'lowercase##Param1'}]
-    #lower = LoweCase(nombre, params, inst, -1, -1)
-    #ast.setFunciones(lower)
-
-    nombre = "log10"
-    params = [{'tipo': 'NoTipo', 'ide': 'log10##Param1'}]
-    #log_10 = Logaritmo(nombre, params, inst, -1,-1)
-    #ast.setFunciones(log_10)
-
-    nombre = "log"
-    params = [{'tipo': 'NoTipo', 'ide': 'log##Param1'}, {'tipo':'NoTipo', 'ide': 'log##Param2'}]
-    #log_base = Logaritmo_Base(nombre, params, inst, -1,-1)
-    #ast.setFunciones(log_base)
-
-    nombre = "sin"
-    params = [{'tipo': 'NoTipo', 'ide': 'sin##Param1'}]
-    #sin = Seno(nombre, params, inst, -1,-1)
-    #ast.setFunciones(sin)
-
-    nombre = "cos"
-    params = [{'tipo': 'NoTipo', 'ide': 'cos##Param1'}]
-    #cos = Coseno(nombre, params, inst, -1,-1)
-    #ast.setFunciones(cos)
-
-    nombre = "tan"
-    params = [{'tipo': 'NoTipo', 'ide': 'tan##Param1'}]
-    #tan = Tangente(nombre, params, inst, -1,-1)
-    #ast.setFunciones(tan)
-
-    nombre = "sqrt"
-    params = [{'tipo': 'NoTipo', 'ide': 'sqrt##Param1'}]
-    #sqrt = Raiz(nombre, params, inst, -1,-1)
-    #ast.setFunciones(sqrt)
+    params = [{'tipo':Tipo.STRING, 'ide':'lowercase##Param1'}]
+    lower = LowerCase(nombre, params, inst,Tipo.STRING, -1, -1)
+    ast.setFunciones('lowercase',lower)
 
     nombre = "parse"
     #params = [{'tipo': 'NoTipo', 'ide': 'parse##Param1'}, {'tipo':TIPO.STRING, 'ide': 'parse##Param2'}]
@@ -493,9 +476,9 @@ def agregarNativas(ast):
     #ast.setFunciones(parse)
 
     nombre = "length"
-    params = [{'tipo':'NoTipo', 'ide':'length##Param1'}]
-    #length = Length(nombre, params, inst, -1, -1)
-    #ast.setFunciones(length)
+    params = [{'tipo':Tipo.ARRAY, 'ide':'length##Param1'}]
+    length = Length(nombre, params, inst,Tipo.INT, -1, -1)
+    ast.setFunciones('length',length)
 
     nombre = "typeof"
     params = [{'tipo':'NoTipo', 'ide':'typeof##Param1'}]
@@ -503,29 +486,20 @@ def agregarNativas(ast):
     #ast.setFunciones(typeof)
 
     nombre = "float"
-    #params = [{'tipo':TIPO.ENTERO, 'ide':'float##Param1'}]
-    #floats = Float(nombre, params, inst, -1, -1)
-    #ast.setFunciones(floats)
+    params = [{'tipo':Tipo.INT, 'ide':'float##Param1'}]
+    floats = Float(nombre, params, inst,Tipo.FLOAT, -1, -1)
+    ast.setFunciones('float', floats)
 
     nombre = "trunc"
-    #params = [{'tipo':TIPO.FLOAT, 'ide':'trunc##Param1'}]
-    #trunc = Trunc(nombre, params, inst, -1, -1)
-    #ast.setFunciones(trunc)
+    params = [{'tipo':Tipo.FLOAT, 'ide':'trunc##Param1'}]
+    trunc = Trunc(nombre, params, inst, Tipo.INT, -1, -1)
+    ast.setFunciones('trunc',  trunc)
 
     nombre = "string"
     params = [{'tipo':'NoTipo', 'ide':'string##Param1'}]
     #string = Stringg(nombre, params, inst, -1, -1)
     #ast.setFunciones(string)
 
-    nombre = "push"
-    #params = [{'tipo':TIPO.ARRAY, 'ide':'push##Param1'}, {'tipo':'NoTipo', 'ide':'push##Param2'}]
-    #push = Push(nombre, params, inst, -1,-1)
-    #ast.setFunciones(push)
-
-    nombre = "pop"
-    #params = [{'tipo':TIPO.ARRAY, 'ide':'pop##Param1'}]
-    #pop = Pop(nombre, params, inst, -1,-1)
-    #ast.setFunciones(pop)
 
     
 def p_error(t):
@@ -546,7 +520,7 @@ def parse(inp):
     lexer.lineno = 1
     return parser.parse(inp)
 
-f = open("Backend/entrada.txt", "r")
+f = open("Backend/entrada.jl", "r")
 entrada = f.read()
 print("ARCHIVO DE ENTRADA:")
 print("")
@@ -563,6 +537,8 @@ instrucciones = parse(entrada)
 ast = Arbol(instrucciones)
 TsgGlobal = Tabla_Simbolo()
 ast.setTSglobal(TsgGlobal)
+
+agregarNativas(ast)
 try:
     for instruccion in ast.getInst():
         value = instruccion.compilar(ast, TsgGlobal)
@@ -572,5 +548,5 @@ try:
         print(error.toString2())
     print(generador.getCode())
 except:
-    print("Error al ejecutar las instrucciones :c")
+    print("Error en la ejecucion de las instrucciones :c")
 

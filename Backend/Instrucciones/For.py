@@ -1,6 +1,7 @@
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
+from Instrucciones.Return import ReturnE
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
 from Expresiones.Variable import Variable
@@ -36,14 +37,16 @@ class For(Instruccion):
             Lbl3 = generator.newLabel()
             self.inicio.value = self.rango[0]
             self.inicio.tipo = self.rango[0].getTipo()
-            fin = self.rango[1].compilar(tree,table)
             
             if bandera:
                 entorno = Tabla_Simbolo(table)
+                entorno.returnLbl = table.returnLbl
                 self.inicio.compilar(tree,entorno)
+                fin = self.rango[1].compilar(tree,entorno)
 
-                generator.putLabel(Lbl0)
                 tmp2 = generator.addTemp()
+                
+                generator.putLabel(Lbl0)
                 
                 generator.addExp(tmp2, 'P', table.size,'+')
                 tmp1 = generator.addTemp()
@@ -53,9 +56,10 @@ class For(Instruccion):
                 generator.addGoto(Lbl2)
                 generator.putLabel(Lbl1)
                 
-                entorno = Tabla_Simbolo(entorno)
+                # entorno = Tabla_Simbolo(entorno)
                 entorno.breakLbl = Lbl2
                 entorno.continueLbl = Lbl3
+                entorno.returnLbl = table.returnLbl
                 for instruccion in self.instrucciones:
                     value = instruccion.compilar(tree, entorno)
                     if isinstance(value,Excepcion):
@@ -64,20 +68,36 @@ class For(Instruccion):
                         generator.addGoto(Lbl2)
                     if isinstance(value, Continue):
                         generator.addGoto(Lbl3)
+                    if isinstance(value, ReturnE):
+                        if entorno.returnLbl != '':
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.setStack('P',value.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
                 entorno.breakLbl = ''
                 entorno.continueLbl = ''
 
                 generator.addGoto(Lbl3)
                 generator.putLabel(Lbl3)
 
-                generator.addExp(tmp1,tmp1, '1', '+')
-                generator.setStack(tmp2, tmp1)
+                tmp1 = generator.addTemp()
+                generator.addExp(tmp1, 'P', table.size,'+')
+                tmp2 = generator.addTemp()
+                generator.addExp(tmp2, 'P', table.size,'+')
+                tmp3 = generator.addTemp()
+                generator.getStack(tmp3, tmp2)
+
+                tmp4 = generator.addTemp()
+                generator.addExp(tmp4, tmp3,'1','+')
+
+                generator.setStack(tmp1, tmp4)
 
             else:
                 Lbl0 = generator.newLabel()
                 Lbl1 = generator.newLabel()
                 Lbl2 = generator.newLabel()
                 Lbl3 = generator.newLabel()
+                fin = self.rango[1].compilar(tree,table)
                 self.inicio.compilar(tree,entorno)
                 generator.putLabel(Lbl0)
                 variable = table.getTabla(self.inicio.id)
@@ -91,6 +111,7 @@ class For(Instruccion):
                 entorno = Tabla_Simbolo(entorno)
                 entorno.breakLbl = Lbl2
                 entorno.continueLbl = Lbl3
+                entorno.returnLbl = table.returnLbl
                 for instruccion in self.instrucciones:
                     value = instruccion.compilar(tree, entorno)
                     if isinstance(value,Excepcion):
@@ -99,6 +120,12 @@ class For(Instruccion):
                         generator.addGoto(Lbl2)
                     if isinstance(value, Continue):
                         generator.addGoto(Lbl3)
+                    if isinstance(value, ReturnE):
+                        if entorno.returnLbl != '':
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.setStack('P',value.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
                 entorno.breakLbl = ''
                 entorno.continueLbl = ''
                 tmp7 = generator.addTemp()
@@ -141,6 +168,7 @@ class For(Instruccion):
                         entorno = Tabla_Simbolo(entorno)
                         entorno.breakLbl = Lbl2
                         entorno.continueLbl = Lbl3
+                        entorno.returnLbl = table.returnLbl
                         for instruccion in self.instrucciones:
                             value = instruccion.compilar(tree, entorno)
                             if isinstance(value, Excepcion):
@@ -149,6 +177,12 @@ class For(Instruccion):
                                 generator.addGoto(Lbl3)
                             if isinstance(value, Break):
                                 generator.addGoto(Lbl2)
+                            if isinstance(value, ReturnE):
+                                if entorno.returnLbl != '':
+                                    generator.addComment('Resultado a retornar en la funcion')
+                                    generator.setStack('P',value.getValor())
+                                    generator.addGoto(entorno.returnLbl)
+                                    generator.addComment('Fin del resultado a retornar')
                         entorno.breakLbl = ''
                         entorno.continueLbl = ''
                         generator.addGoto(Lbl3)
@@ -185,10 +219,21 @@ class For(Instruccion):
                         entorno = Tabla_Simbolo(entorno)
                         entorno.breakLbl = Lbl2
                         entorno.continueLbl = Lbl3
+                        entorno.returnLbl = table.returnLbl
                         for instruccion in self.instrucciones:
                             value = instruccion.compilar(tree, entorno)
                             if isinstance(value, Excepcion):
                                 tree.setExcepciones(value)
+                            if isinstance(value, Break):
+                                generator.addGoto(Lbl2)
+                            if isinstance(value, Continue):
+                                generator.addGoto(Lbl3)
+                            if isinstance(value, ReturnE):
+                                if entorno.returnLbl != '':
+                                    generator.addComment('Resultado a retornar en la funcion')
+                                    generator.setStack('P',value.getValor())
+                                    generator.addGoto(entorno.returnLbl)
+                                    generator.addComment('Fin del resultado a retornar')
                         entorno.breakLbl = ''
                         entorno.continueLbl = ''
                         generator.addGoto(Lbl3)
@@ -223,6 +268,16 @@ class For(Instruccion):
                     value = instruccion.compilar(tree, entorno)
                     if isinstance(value, Excepcion):
                         tree.setExcepciones(value)
+                    if isinstance(value, Break):
+                        generator.addGoto(Lbl2)
+                    if isinstance(value, Continue):
+                        generator.addGoto(Lbl3)
+                    if isinstance(value, ReturnE):
+                        if entorno.returnLbl != '':
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.setStack('P',value.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
                 generator.addGoto(Lbl3)
                 generator.putLabel(Lbl3)
                 generator.addExp(tmp, tmp, '1','+')
