@@ -2,7 +2,7 @@
 class Arbol:
     def __init__(self, instrucciones):
         self.instrucciones = instrucciones
-        self.funciones = []
+        self.funciones = {}
         self.excepciones = []
         self.consola = ""
         self.tsglobal = None
@@ -23,15 +23,17 @@ class Arbol:
     def getFunciones(self):
         return self.funciones
     
-    def setFunciones(self, function):
-        if function in self.funciones:
+    def setFunciones(self,id, function):
+        if id in self.funciones.keys():
             return "error"
         else:
-            self.funciones.append(function)
+            self.funciones[id] = function
     
-    def getFuncion(self, function):
-        if function in self.funciones:
-            return function
+    def getFuncion(self, id):
+        entornoActual = self
+        while entornoActual != None:
+            if id in entornoActual.funciones.keys():
+                return entornoActual.funciones[id]
         return None
 
     def getExcepciones(self):

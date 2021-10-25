@@ -1,4 +1,5 @@
 from Abstract.Return import *
+from Abstract.Tipo import *
 
 class Simbolo:
 

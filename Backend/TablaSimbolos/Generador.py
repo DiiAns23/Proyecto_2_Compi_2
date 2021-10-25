@@ -3,6 +3,7 @@ from TablaSimbolos.Tabla_Simbolos import *
 
 class Generador:
     generator = None
+
     def __init__(self):
         # Contadores
         self.countTemp = 0
@@ -20,6 +21,11 @@ class Generador:
         self.compareString = False
         self.concatString = False
         self.potencia = False
+        self.length = False
+        self.trunc = False
+        self.float = False
+        self.upper = False
+        self.lower = False
         self.relacionales = ['>', '<', '>=', '<=']
         #Lista de Imports
         self.imports = []
@@ -105,7 +111,6 @@ class Generador:
 
     def addSpace(self):
         self.codeIn("\n")
-        
 
     ########################
     # Manejo de Temporales
@@ -278,7 +283,182 @@ class Generador:
         self.putLabel(returnLbl)
         self.addEndFunc()
         self.inNatives = False
+
+    def fLength(self):
+        if self.length:
+            return
+        self.length = True
+        self.inNatives = True
+        self.addBeginFunc('length')
+        Lblreturn = self.newLabel()
+        
+        # Temporal puntero en Stack
+        temp = self.addTemp()
+        # Temporal puntero en Heap
+        tempH = self.addTemp()
+        # Temporal resultado
+        tempR = self.addTemp()
+        
+        # Obtencion de la posicion en Stack
+        self.addExp(temp, 'P', '1', '+')
+        # Obtencion de la posicion en el Heap
+        self.getStack(tempH, temp)
+        self.getHeap(tempR, tempH)
+        self.setStack('P', tempR)
+
+        self.addGoto(Lblreturn)
+        self.putLabel(Lblreturn)
+        self.addEndFunc()
+        self.inNatives = False
     
+    def fTrunc(self):
+        if self.trunc:
+            return
+        self.trunc = True
+        self.inNatives = True
+        self.addBeginFunc('trunc')
+        Lblreturn = self.newLabel()
+
+        # Temporal puntero en Stack
+        temp = self.addTemp()
+
+        # Temporal puntero en Heap
+        tempH = self.addTemp()
+
+        # Temporal resultado temp
+        tempR = self.addTemp()
+
+        # Temporal resultado temp2
+        tempR2 = self.addTemp()
+
+        # Obtencion de la posicion en Stack
+        self.addExp(temp, 'P', '1', '+')
+        self.getStack(tempH, temp)
+
+        self.setImport('math')
+        self.addModulo(tempR, tempH, '1')
+        
+        self.addExp(tempR2, tempH, tempR, '-' )
+
+        self.setStack('P', tempR2)
+
+        self.addGoto(Lblreturn)
+        self.putLabel(Lblreturn)
+        self.addEndFunc()        
+        self.inNatives = False
+    
+    def fFloat(self):
+        if self.float:
+            return
+        self.float = True
+        self.inNatives = True
+        self.addBeginFunc('float')
+        Lblreturn = self.newLabel()
+        
+        # Temporal puntero en Stack
+        temp = self.addTemp()
+
+        # Temporal valor
+        tempR = self.addTemp()
+        tempR2 = self.addTemp()
+        
+        # Obtencion de la posicion en Stack
+        self.addExp(temp, 'P', '1', '+')
+        # Obtencion de la posicion en el Heap
+        self.getStack(tempR, temp)
+
+        self.addExp(tempR2, tempR, '1.00', '*')
+        
+        self.setStack('P', tempR2)
+
+        self.addGoto(Lblreturn)
+        self.putLabel(Lblreturn)
+        self.addEndFunc()
+        self.inNatives = False
+
+    def fUpperCase(self):
+        if self.upper:
+            return
+        self.upper = True
+        self.inNatives = True
+        
+        self.addBeginFunc('uppercase')
+        
+        t1 = self.addTemp()
+        t2 = self.addTemp()
+        t3 = self.addTemp()
+
+        Lbl0 = self.newLabel()
+        Lbl1 = self.newLabel()
+        Lbl2 = self.newLabel()
+
+        self.addAsig(t1, 'H')
+        self.addExp(t2, 'P', '1','+')
+        self.getStack(t2, t2)
+        self.putLabel(Lbl0)
+
+        self.getHeap(t3, t2)
+        self.addIf(t3, '-1', '==', Lbl2)
+        self.addIf(t3, '97', '<', Lbl1)
+        self.addIf(t3, '122', '>', Lbl1)
+        self.addExp(t3, t3,'32', '-')
+        self.putLabel(Lbl1)
+    
+        self.setHeap('H', t3)
+        self.nextHeap()
+        self.addExp(t2, t2, '1','+')
+        self.addGoto(Lbl0)
+
+        self.putLabel(Lbl2)
+        self.setHeap('H', '-1')
+        self.nextHeap()
+        self.setStack('P', t1)
+        self.addEndFunc()
+
+        self.inNatives = False
+
+    def fLowerCase(self):
+        if self.upper:
+            return
+        self.upper = True
+        self.inNatives = True
+        
+        self.addBeginFunc('lowercase')
+        
+        t1 = self.addTemp()
+        t2 = self.addTemp()
+        t3 = self.addTemp()
+
+        Lbl0 = self.newLabel()
+        Lbl1 = self.newLabel()
+        Lbl2 = self.newLabel()
+
+        self.addAsig(t1, 'H')
+        self.addExp(t2, 'P', '1','+')
+        self.getStack(t2, t2)
+        self.putLabel(Lbl0)
+
+        self.getHeap(t3, t2)
+        self.addIf(t3, '-1', '==', Lbl2)
+        self.addIf(t3, '65', '<', Lbl1)
+        self.addIf(t3, '90', '>', Lbl1)
+        self.addExp(t3, t3,'32', '+')
+        self.putLabel(Lbl1)
+    
+        self.setHeap('H', t3)
+        self.nextHeap()
+        self.addExp(t2, t2, '1','+')
+        self.addGoto(Lbl0)
+
+        self.putLabel(Lbl2)
+        self.setHeap('H', '-1')
+        self.nextHeap()
+        self.setStack('P', t1)
+        self.addEndFunc()
+
+        self.inNatives = False
+
+
     def fcompareString(self):
         if self.compareString:
             return
@@ -545,5 +725,3 @@ class Generador:
         self.addBeginFunc('printArray')
 
         self.inNatives = False
-
-

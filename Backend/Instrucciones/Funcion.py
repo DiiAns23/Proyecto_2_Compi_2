@@ -1,6 +1,7 @@
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
+from Instrucciones.Return import ReturnE
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
 from Expresiones.Variable import Variable
@@ -13,15 +14,15 @@ from Instrucciones.Declaracion import *
 
 class Funcion(Instruccion):
 
-    def __init__(self,id, params, inst, fila, colum):
+    def __init__(self,id, params, inst, tipo, fila, colum):
         self.id = id
         self.params = params
         self.inst = inst
-        self.tipo = Tipo.NULO
+        self.tipo = tipo
         super().__init__(fila, colum)
 
     def compilar(self, tree, table):
-        funcion = tree.setFunciones(self.id)
+        funcion = tree.setFunciones(self.id, self)
         
         if funcion == "error":
             error = Excepcion("Semantico", f"Funcion {self.id} ya existe", self.fila, self.colum)
@@ -46,11 +47,29 @@ class Funcion(Instruccion):
             if isinstance(value, Break):
                 error = Excepcion("Semantico", "Breack fuera de ciclo", ins.fila, ins.colum)
                 tree.setExcepciones(error)
-        
+            if isinstance(value, ReturnE):
+                if value.getTipo() == self.getTipo():
+                    generator.addComment('Resultado a retornar en la funcion')
+                    generator.setStack('P',value.getValor())
+                    generator.addGoto(Lblreturn)
+                    generator.addComment('Fin del resultado a retornar')
+                else:
+                    generator.addComment('Error en la instruccion Return, consule la lista de errores')
+                    error = Excepcion('Semantico','El tipo en el return no coincide con el tipo de la funcion', value.fila, value.colum)
+                    tree.setExcepciones(error)
+
+        generator.addGoto(Lblreturn)
         generator.putLabel(Lblreturn)
 
         generator.addComment(f"Fin de la Compilacion de la Funcion {self.id}")
         generator.addEndFunc()
         generator.addSpace()
 
-        return None
+        return
+    
+    def getParams(self):
+        return self.params
+    
+    def getTipo(self):
+        return self.tipo
+    
