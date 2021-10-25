@@ -12,6 +12,7 @@ class Tabla_Simbolo:
         self.breakLbl = ''
         self.continueLbl = ''
         self.returnLbl = ''
+        self.recTemps = False
         self.size = 0
         if(anterior != None):
             self.size = self.anterior.size

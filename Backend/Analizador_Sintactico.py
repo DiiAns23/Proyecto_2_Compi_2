@@ -539,14 +539,12 @@ TsgGlobal = Tabla_Simbolo()
 ast.setTSglobal(TsgGlobal)
 
 agregarNativas(ast)
-try:
-    for instruccion in ast.getInst():
-        value = instruccion.compilar(ast, TsgGlobal)
-        if isinstance(value, Excepcion):
-            ast.setExcepciones(value)
-    for error in ast.getExcepciones():
-        print(error.toString2())
-    print(generador.getCode())
-except:
-    print("Error en la ejecucion de las instrucciones :c")
+
+for instruccion in ast.getInst():
+    value = instruccion.compilar(ast, TsgGlobal)
+    if isinstance(value, Excepcion):
+        ast.setExcepciones(value)
+for error in ast.getExcepciones():
+    print(error.toString2())
+print(generador.getCode())
 
