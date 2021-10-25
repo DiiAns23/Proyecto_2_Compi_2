@@ -19,10 +19,23 @@ class Llamada_Funcion(Instruccion):
         generator = genAux.getInstance()
         if funcion != None:
             generator.addComment(f"Llamada de la Funcion {self.id}")
+
             paramValues = []
+            temps = []
+            rec = False
             size = table.size
             for param in self.params:
-                paramValues.append(param.compilar(tree,table))
+                if isinstance(param, Llamada_Funcion):
+                    rec = True
+                    self.guardarTemps(generator, table, temps)
+                    a = param.compilar(tree, table)
+                    paramValues.append(a)
+                    self.recuperarTemps(generator, table, temps)
+                else:
+                    a = param.compilar(tree, table)
+                    paramValues.append(a)
+                    temps.append(a.getValue())
+
             temp = generator.addTemp()
 
             generator.addExp(temp,'P', size +1, '+')
@@ -50,6 +63,24 @@ class Llamada_Funcion(Instruccion):
         generator.addComent(f'Error producido en la llamada a la funcion {self.id} consulte la lista de errores')
         return Excepcion('Semantico',f'No se ha encontrado la funcion {self.id}', self.fila, self.colum)
     
+    def guardarTemps(self, generator, table, tmp2):
+        generator.addComment('Guardado de temporales')
+        tmp = generator.addTemp()
+        for tmp1 in tmp2:
+            generator.addExp(tmp, 'P', table.size, '+')
+            generator.setStack(tmp,tmp1)
+            table.size += 1
+        generator.addComment('Fin de guardado de temporales')
+    
+    def recuperarTemps(self, generator, table, tmp2):
+        generator.addComment('Recuperacion de Temporales')
+        tmp = generator.addTemp()
+        for tmp1 in tmp2:
+            table.size -= 1
+            generator.addExp(tmp, 'P', table.size, '+')
+            generator.getStack(tmp1,tmp)
+        generator.addComment('Fin de recuperacion de temporales')
+
     def getFuncion(self, generator):
         if self.id == 'length':
             generator.fLength()

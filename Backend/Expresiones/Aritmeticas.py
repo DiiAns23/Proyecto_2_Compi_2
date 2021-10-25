@@ -2,6 +2,7 @@ from Abstract.Expression import *
 from Abstract.Return import *
 from Abstract.Tipo import *
 from Abstract.Tipo import *
+from Expresiones.Llamada_Funcion import Llamada_Funcion
 from TablaSimbolos.Generador import *
 from TablaSimbolos.Excepcion import *
 
@@ -19,11 +20,18 @@ class Aritmeticas(Expression):
         generator = genAux.getInstance()
         temp = ''
         op = ''
-
+        leftValue = ''
+        rightValue = ''
         if self.left != None:
             leftValue = self.left.compilar(tree, table)
+            
         if self.right != None:
-            rightValue = self.right.compilar(tree, table)
+            if isinstance(self.right, Llamada_Funcion):
+                self.right.guardarTemps(generator, table, [leftValue.getValue()])
+                rightValue = self.right.compilar(tree, table)
+                self.right.recuperarTemps(generator, table, [leftValue.getValue()])
+            else:
+                rightValue = self.right.compilar(tree, table)
 
         if (self.getTipo() == OperadorAritmetico.UME):
             op = '-'

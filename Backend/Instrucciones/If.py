@@ -67,10 +67,11 @@ class If(Instruccion):
 
             generator.putLabel(condicion.getFalseLbl())
             if self.bloqueElse != None:
+                entorno = Tabla_Simbolo(table)
                 for instruccion in self.bloqueElse:
-                    entorno = Tabla_Simbolo(table)
                     entorno.breakLbl = table.breakLbl 
                     entorno.continueLbl = table.continueLbl
+                    entorno.returnLbl = table.returnLbl
                     result = instruccion.compilar(tree, entorno)
                     if isinstance(result, Excepcion):
                         tree.setExcepciones(result)

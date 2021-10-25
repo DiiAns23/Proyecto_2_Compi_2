@@ -19,6 +19,7 @@ class Funcion(Instruccion):
         self.params = params
         self.inst = inst
         self.tipo = tipo
+        self.recTemps = True
         super().__init__(fila, colum)
 
     def compilar(self, tree, table):
@@ -39,6 +40,7 @@ class Funcion(Instruccion):
         for param in self.params:
             entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
         generator.addBeginFunc(self.id)
+
 
         for ins in self.inst:
             value = ins.compilar(tree, entorno)

@@ -1,5 +1,9 @@
+import re
 from Abstract.Instruccion import Instruccion
 from Abstract.Return import Return
+from Expresiones.Aritmeticas import Aritmeticas
+from TablaSimbolos.Generador import Generador
+from Expresiones.Llamada_Funcion import Llamada_Funcion
 from TablaSimbolos.Excepcion import Excepcion
 
 class ReturnE(Instruccion):
