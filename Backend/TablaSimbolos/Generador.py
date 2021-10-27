@@ -175,22 +175,22 @@ class Generador:
     # STACK
     ###############
     def setStack(self, pos, value):
-        self.codeIn(f'stack[int({pos})]={value};\n')
+        self.codeIn(f'stack[int({pos})] = {value};\n')
     
     def getStack(self, place, pos):
-        self.codeIn(f'{place}=stack[int({pos})];\n')
+        self.codeIn(f'{place} = stack[int({pos})];\n')
 
     #############
     # ENVS
     #############
     def newEnv(self, size):
-        self.codeIn(f'P=P+{size};\n')
+        self.codeIn(f'P = P + {size};\n')
 
     def callFun(self, id):
         self.codeIn(f'{id}();\n')
 
     def retEnv(self, size):
-        self.codeIn(f'P=P-{size};\n')
+        self.codeIn(f'P = P - {size};\n')
 
     ###############
     # HEAP
@@ -202,7 +202,7 @@ class Generador:
         self.codeIn(f'{place} = heap[int({pos})];\n')
 
     def nextHeap(self):
-        self.codeIn('H=H+1;\n')
+        self.codeIn('H = H + 1;\n')
 
     # INSTRUCCIONES
     def addPrint(self, type, value):

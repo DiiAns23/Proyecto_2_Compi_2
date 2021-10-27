@@ -40,13 +40,15 @@ class Array(Expression):
 
             tmp3 = generator.addTemp()
             tmp4 = generator.addTemp()
+            tmp5 = generator.addTemp()
             Lbl1 = generator.newLabel()
             Lbl2 = generator.newLabel()
             Lbl3 = generator.newLabel()
             indice = self.indice[0].compilar(tree, table)
             generator.addExp(tmp3, temp,indice.getValue(), '+')
             generator.addIf(indice.getValue(),'1','<',Lbl1)
-            generator.addIf(indice.getValue(),f'{var.getLength()}','>', Lbl1)
+            generator.getHeap(tmp5, temp)
+            generator.addIf(indice.getValue(),tmp5,'>', Lbl1)
             generator.addGoto(Lbl2)
             generator.putLabel(Lbl1)
             error = "Bounds Error \n"

@@ -10,7 +10,7 @@ class Simbolo:
         self.isGlobal = globalVar
         self.inHeap = inHeap
         self.value = None
-        self.tipoAux = ''
+        self.tipoAux = Tipo.INT
         self.length = 0
         self.referencia = False
     
