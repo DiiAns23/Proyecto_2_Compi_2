@@ -36,12 +36,38 @@ class Asignacion_Arrays(Instruccion):
         tmp10 = generator.addTemp()
 
         generator.getStack(tmp10, tempPos)
-
+        
         value = self.valor.compilar(tree, table)
+
+        if isinstance(value, Excepcion):
+            return value
+
         indice = self.indices[0].compilar(tree,table)
+        if isinstance(indice, Excepcion):
+            return indice
+
+        tmp4 = generator.addTemp()
+        Lbl1 = generator.newLabel()
+        Lbl2 = generator.newLabel()
+        Lbl3 = generator.newLabel()
 
         generator.addExp(temp, tmp10, indice.getValue(),'+')
+        generator.addIf(indice.getValue(),'1','<',Lbl1)
+        generator.getHeap(tmp4, tmp10)
+        generator.addIf(indice.getValue(),tmp4,'>', Lbl1)
+        generator.addGoto(Lbl2)
+        generator.putLabel(Lbl1)
+        error = "Bounds Error \n"
+        for char in error:
+            generator.addPrint("c",ord(char))
+        generator.addGoto(Lbl3)
+        generator.putLabel(Lbl2)
+        
         generator.setHeap(temp, value.getValue())
+        generator.addGoto(Lbl3)
+        generator.putLabel(Lbl3)
+
+        
         generator.addComment('Fin de compilacion de Cambio de Valor')
         generator.addSpace()
 

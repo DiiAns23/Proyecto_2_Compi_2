@@ -1,9 +1,1 @@
-function factorial(num::Int64)::Int64
-    if num == 1
-        return 1;
-    else
-        return factorial(num - 1)*num;
-    end;
-end;
-
-println(factorial(5));
+a = [1,2,3,[4,[5,6]]];

@@ -13,6 +13,7 @@ class Declaracion_Arrays(Instruccion):
         self.values = values
         self.tipo = Tipo.ARRAY
         self.length = len(self.values)
+        self.multiDim = False
     
     def compilar(self, tree, table):
         genAux = Generador()
@@ -30,12 +31,22 @@ class Declaracion_Arrays(Instruccion):
             tipo = ''
             length = 0
             for value in self.values:
-                val = value.compilar(tree,table)
-                tipo = val.getTipo()
-                generator.setHeap(t1,val.getValue())
-                generator.addExp(t1,t1,'1','+')
-                generator.addSpace()
-                length += 1
+                if not isinstance(value, Declaracion_Arrays):
+                    val = value.compilar(tree,table)
+                    tipo = val.getTipo()
+                    generator.setHeap(t1,val.getValue())
+                    generator.addExp(t1,t1,'1','+')
+                    generator.addSpace()
+                    length += 1
+                else:
+                    value.multiDim = True
+                    val = value.compilar(tree,table)
+                    generator.setHeap(t1,val.getValue())
+                    generator.addExp(t1,t1,'1','+')
+                    generator.addSpace()
+                    length += 1
+            if self.multiDim:
+                return Return(t0, Tipo.ARRAY, True)
             simbolo = table.setTabla(self.id,self.tipo,True)
             simbolo.setTipoAux(tipo)
             simbolo.setLength(length)
@@ -44,8 +55,8 @@ class Declaracion_Arrays(Instruccion):
                 tempPos = generator.addTemp()
                 generator.addExp(tempPos, 'P', simbolo.pos, "+")
             generator.setStack(tempPos, t0)
-            
             generator.addComment('Fin de la compilacion del Array')
+            
 
 
     def getTipo(self):

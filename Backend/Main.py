@@ -9,6 +9,7 @@ from TablaSimbolos.Arbol import Arbol
 from TablaSimbolos.Tabla_Simbolos import *
 from TablaSimbolos.Generador import *
 from Analizador_Sintactico import parse as Analizar
+from Analizador_Sintactico import agregarNativas as Nativas
 
 sys.setrecursionlimit(10000000)
 
@@ -42,7 +43,7 @@ def salida():
     ast = Arbol(instrucciones)
     TsgGlobal = Tabla_Simbolo()
     ast.setTSglobal(TsgGlobal)
-
+    Nativas(ast)
     try:
         for instruccion in ast.getInst():
             value = instruccion.compilar(ast, TsgGlobal)

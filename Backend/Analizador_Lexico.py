@@ -27,7 +27,7 @@ reserved = {
     'continue'  :   'RCONTINUE',
     'local'     :   'RLOCAL',
     'global'    :   'RGLOBAL',
-    'List'      :   'RLIST',
+    'Array'      :   'RLIST',
     'struct'    :   'RSTRUCT',
     'mutable'   :   'RMUTABLE',
     'nothing'   :   'RNOTHING'

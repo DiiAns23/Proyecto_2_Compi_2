@@ -455,7 +455,7 @@ def p_tipo(t):
         t[0] = Tipo.CHAR
     elif t[1] == "String":
         t[0] = Tipo.STRING
-    elif t[1] == "List":
+    elif t[1] == "Array":
         t[0] = Tipo.ARRAY
 
 def agregarNativas(ast):

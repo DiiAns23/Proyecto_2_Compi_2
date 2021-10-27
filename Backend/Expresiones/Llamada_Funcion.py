@@ -22,11 +22,10 @@ class Llamada_Funcion(Instruccion):
 
             paramValues = []
             temps = []
-            rec = False
             size = table.size
+            
             for param in self.params:
                 if isinstance(param, Llamada_Funcion):
-                    rec = True
                     self.guardarTemps(generator, table, temps)
                     a = param.compilar(tree, table)
                     paramValues.append(a)
