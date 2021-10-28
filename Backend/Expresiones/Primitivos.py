@@ -8,6 +8,7 @@ class Primitivos(Expression):
         Expression.__init__(self, line, column)
         self.value = value
         self.type = type
+        self.tipoAux = ''
     
     def compilar(self, tree, table):
         genAux = Generador()
@@ -60,7 +61,11 @@ class Primitivos(Expression):
         return self.type
     def getValue(self):
         return int(self.value)
+    def getTipoAux(self):
+        return self.tipoAux
     def setValue(self, value):
         self.value = value
     def setTipo(self, tipo):
         self.tipo = tipo
+    def setTipoAux(self, tipo):
+        self.tipoAux = tipo

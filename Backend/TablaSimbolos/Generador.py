@@ -1,3 +1,4 @@
+from re import S
 from typing import AsyncIterable
 from TablaSimbolos.Tabla_Simbolos import *
 
@@ -26,6 +27,7 @@ class Generador:
         self.float = False
         self.upper = False
         self.lower = False
+        self.boundError = False
         self.relacionales = ['>', '<', '>=', '<=']
         #Lista de Imports
         self.imports = []
@@ -725,3 +727,17 @@ class Generador:
         self.addBeginFunc('printArray')
 
         self.inNatives = False
+
+    def fboundError(self):
+        if self.boundError:
+            return
+        self.boundError = True
+        self.inNatives = True
+        self.addBeginFunc('BoundsError')
+        error = "Bounds Error \n"
+        for char in error:
+            self.addPrint("c",ord(char))
+        self.addEndFunc()
+        self.addSpace()
+        self.inNatives = False
+        

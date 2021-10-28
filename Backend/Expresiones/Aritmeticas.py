@@ -24,6 +24,8 @@ class Aritmeticas(Expression):
         rightValue = ''
         if self.left != None:
             leftValue = self.left.compilar(tree, table)
+            if leftValue.getTipo() == Tipo.ARRAY:
+                leftValue.setTipo(leftValue.getTipoAux())
             
         if self.right != None:
             if isinstance(self.right, Llamada_Funcion):
@@ -32,6 +34,8 @@ class Aritmeticas(Expression):
                 self.right.recuperarTemps(generator, table, [leftValue.getValue()])
             else:
                 rightValue = self.right.compilar(tree, table)
+                if rightValue.getTipo() == Tipo.ARRAY:
+                    rightValue.setTipo(rightValue.getTipoAux())
 
         if (self.getTipo() == OperadorAritmetico.UME):
             op = '-'
@@ -130,7 +134,7 @@ class Aritmeticas(Expression):
 
                 return Return(t9, Tipo.STRING, False)
 
-            return Excepcion("Semantico", "Operacion 'Multiplicacion' no permitida en: ", self.fila, self.column)
+            return Excepcion("Semantico", "Operacion 'Multiplicacion' no permitida en: ", self.fila, self.colum)
 
         elif(self.getTipo() == OperadorAritmetico.DIV):
             op = '/' 

@@ -55,10 +55,20 @@ class If(Instruccion):
                         return Excepcion("Semantico", "Instruccion Continue fuera de Ciclo", self.fila, self.colum)
                 if isinstance(result, ReturnE):
                     if entorno.returnLbl != '':
-                        generator.addComment('Resultado a retornar en la funcion')
-                        generator.setStack('P',result.getValor())
-                        generator.addGoto(entorno.returnLbl)
-                        generator.addComment('Fin del resultado a retornar')
+                        if result.getTrueLbl() == '':
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.setStack('P',result.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
+                        else:
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.putLabel(result.getTrueLbl())
+                            generator.setStack('P', '1')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.putLabel(result.getFalseLbl())
+                            generator.setStack('P', '0')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
                     
                         
             
@@ -88,9 +98,18 @@ class If(Instruccion):
                             generator.putLabel(salir)
                             return Excepcion("Semantico", "Instruccion Continue fuera de Ciclo", self.fila, self.colum)
                     if isinstance(result, ReturnE):
-                        if entorno.returnLbl != '':
+                        if result.getTrueLbl() == '':
                             generator.addComment('Resultado a retornar en la funcion')
                             generator.setStack('P',result.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
+                        else:
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.putLabel(result.getTrueLbl())
+                            generator.setStack('P', '1')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.putLabel(result.getFalseLbl())
+                            generator.setStack('P', '0')
                             generator.addGoto(entorno.returnLbl)
                             generator.addComment('Fin del resultado a retornar')
             elif self.bloqueElif != None:

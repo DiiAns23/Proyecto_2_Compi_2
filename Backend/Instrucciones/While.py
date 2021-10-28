@@ -45,10 +45,20 @@ class While(Instruccion):
                         generator.addGoto(Lbl0)
                     if isinstance(value, ReturnE):
                         if entorno.returnLbl != '':
-                            generator.addComment('Resultado a retornar en la funcion')
-                            generator.setStack('P',value.getValor())
-                            generator.addGoto(entorno.returnLbl)
-                            generator.addComment('Fin del resultado a retornar')
+                            if value.getTrueLbl() == '':
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.setStack('P',value.getValor())
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
+                            else:
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.putLabel(value.getTrueLbl())
+                                generator.setStack('P', '1')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.putLabel(value.getFalseLbl())
+                                generator.setStack('P', '0')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
                 table.breakLbl = ''
                 table.continueLbl = ''
 

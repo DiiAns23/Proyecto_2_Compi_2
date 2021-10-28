@@ -4,7 +4,7 @@ from Optimizador_Lexico import tokens
 
 # Definicion de la Gramatica
 def p_init(t):
-    'init : instrucciones'
+    'init : RPACKAGE ID '
     t[0] = t[1]
     return t[0]
 
