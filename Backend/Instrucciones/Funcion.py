@@ -1,3 +1,4 @@
+from typing import List
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
@@ -38,7 +39,11 @@ class Funcion(Instruccion):
         entorno.returnLbl = Lblreturn
         entorno.size = 1
         for param in self.params:
-            entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
+            if not isinstance(param["tipo"], List):
+                entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
+            else:
+                simbolo = entorno.setTabla(param["ide"], param["tipo"][0],True)
+                simbolo.setTipoAux(param["tipo"][1])
         generator.addBeginFunc(self.id)
 
 
@@ -50,15 +55,20 @@ class Funcion(Instruccion):
                 error = Excepcion("Semantico", "Breack fuera de ciclo", ins.fila, ins.colum)
                 tree.setExcepciones(error)
             if isinstance(value, ReturnE):
-                if value.getTipo() == self.getTipo():
+                if value.getTrueLbl() == '':
                     generator.addComment('Resultado a retornar en la funcion')
                     generator.setStack('P',value.getValor())
-                    generator.addGoto(Lblreturn)
+                    generator.addGoto(entorno.returnLbl)
                     generator.addComment('Fin del resultado a retornar')
                 else:
-                    generator.addComment('Error en la instruccion Return, consule la lista de errores')
-                    error = Excepcion('Semantico','El tipo en el return no coincide con el tipo de la funcion', value.fila, value.colum)
-                    tree.setExcepciones(error)
+                    generator.addComment('Resultado a retornar en la funcion')
+                    generator.putLabel(value.getTrueLbl())
+                    generator.setStack('P', '1')
+                    generator.addGoto(entorno.returnLbl)
+                    generator.putLabel(value.getFalseLbl())
+                    generator.setStack('P', '0')
+                    generator.addGoto(entorno.returnLbl)
+                    generator.addComment('Fin del resultado a retornar')
 
         generator.addGoto(Lblreturn)
         generator.putLabel(Lblreturn)

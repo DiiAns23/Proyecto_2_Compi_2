@@ -138,7 +138,7 @@ def p_declaracion_array(t):
 
 def p_declaracion_array_2(t):
     'declaracion_instr : ID IGUAL CORI parametros_ll CORD DPUNTOS DPUNTOS tipo'
-    #t[0] = Declaracion(t[1], t.lineno(1), find_column(input, t.slice[1]), t[8], t[4])
+    t[0] = Declaracion_Arrays(t[1], t.lineno(2),find_column(input, t.slice[2]), t[4], t[8])
 
 def p_asignacion_array(t):
     'asignacion_array : ID arrays_1 IGUAL expresion'
@@ -443,8 +443,7 @@ def p_tipo(t):
             | RFLOAT
             | RBOOL
             | RCHAR
-            | RSTRING
-            | RLIST'''
+            | RSTRING'''
     if t[1] ==  "Int64":
         t[0] = Tipo.INT
     elif t[1] == "Float64":
@@ -455,8 +454,19 @@ def p_tipo(t):
         t[0] = Tipo.CHAR
     elif t[1] == "String":
         t[0] = Tipo.STRING
-    elif t[1] == "Array":
-        t[0] = Tipo.ARRAY
+    
+def p_tipo_2(t):
+    '''tipo : tipo LLI tipo LLD '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_tipo_3(t):
+    '''tipo : tipo_2'''
+    t[0] = [t[1]]
+
+def p_tipo_4(t):
+    '''tipo_2 : RLIST'''
+    t[0] = Tipo.ARRAY
 
 def agregarNativas(ast):
     nombre = "uppercase"

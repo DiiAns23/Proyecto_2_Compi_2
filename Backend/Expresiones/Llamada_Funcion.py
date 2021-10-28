@@ -11,6 +11,8 @@ class Llamada_Funcion(Instruccion):
     def __init__(self, id, params, fila, colum):
         self.id = id
         self.params = params
+        self.trueLbl = ''
+        self.falseLbl = ''
         super().__init__(fila, colum)
     
     def compilar(self, tree, table):
@@ -41,14 +43,31 @@ class Llamada_Funcion(Instruccion):
             aux = 0
             if len(funcion.getParams()) == len(paramValues):
                 for param in paramValues:
-                    if funcion.params[aux]['tipo'] == param.getTipo():
-                        aux += 1
-                        generator.setStack(temp, param.getValue())
-                        if aux != len(paramValues):
-                            generator.addExp(temp, temp, '1', '+')
-                    else:
-                        generator.addComment(f'Fin de la llamada a la funcion {self.id} por error, consulte la lista de errores')
-                        return Excepcion('Semantico', f'Tipos no coinciden en la llamada de la funcion {self.id}', self.fila, self.colum)
+                    try:
+                        if funcion.params[aux]['tipo'] == param.getTipo()[0]:
+                            aux += 1
+                            generator.setStack(temp, param.getValue())
+                            if aux != len(paramValues):
+                                generator.addExp(temp, temp, '1', '+')
+                    except:
+                        try:
+                            if funcion.params[aux]['tipo'][0] == param.getTipo():
+                                aux += 1
+                                generator.setStack(temp, param.getValue())
+                                if aux != len(paramValues):
+                                    generator.addExp(temp, temp, '1', '+')
+                            else:
+                                generator.addComment(f'Fin de la llamada a la funcion {self.id} por error, consulte la lista de errores')
+                                return Excepcion('Semantico', f'Tipos no coinciden en la llamada de la funcion {self.id}', self.fila, self.colum)
+                        except:
+                            if funcion.params[aux]['tipo'] == param.getTipo():
+                                aux += 1
+                                generator.setStack(temp, param.getValue())
+                                if aux != len(paramValues):
+                                    generator.addExp(temp, temp, '1', '+')
+                            else:
+                                generator.addComment(f'Fin de la llamada a la funcion {self.id} por error, consulte la lista de errores')
+                                return Excepcion('Semantico', f'Tipos no coinciden en la llamada de la funcion {self.id}', self.fila, self.colum)
             else:
                 generator.addComment(f'Error en la llamada de la funcion {self.id}')
             generator.newEnv(size)
@@ -58,7 +77,24 @@ class Llamada_Funcion(Instruccion):
             generator.retEnv(size)
             generator.addComment(f"Fin de la llamada a la funcion {self.id}")
             generator.addSpace()
-            return Return(temp, funcion.getTipo(), True)
+
+            if funcion.getTipo() != Tipo.BOOL:
+                return Return(temp, funcion.getTipo(), True)
+
+            else:
+                generator.addComment('Recuperacion de booleano')
+                if self.trueLbl == '':
+                    self.trueLbl = generator.newLabel()
+                if self.falseLbl == '':
+                    self.falseLbl = generator.newLabel()
+                generator.addIf(temp, '1', '==', self.trueLbl)
+                generator.addGoto(self.falseLbl)
+                ret = Return(temp, funcion.getTipo(), True)
+                ret.trueLbl = self.trueLbl
+                ret.falseLbl = self.falseLbl
+                generator.addComment('Fin de recuperacion de booleano')
+                return ret
+
         generator.addComent(f'Error producido en la llamada a la funcion {self.id} consulte la lista de errores')
         return Excepcion('Semantico',f'No se ha encontrado la funcion {self.id}', self.fila, self.colum)
     

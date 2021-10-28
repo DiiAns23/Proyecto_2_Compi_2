@@ -43,6 +43,7 @@ class For(Instruccion):
                 entorno.returnLbl = table.returnLbl
                 self.inicio.compilar(tree,entorno)
                 fin = self.rango[1].compilar(tree,entorno)
+                if isinstance(fin, Excepcion): return fin
 
                 tmp2 = generator.addTemp()
                 
@@ -70,10 +71,20 @@ class For(Instruccion):
                         generator.addGoto(Lbl3)
                     if isinstance(value, ReturnE):
                         if entorno.returnLbl != '':
-                            generator.addComment('Resultado a retornar en la funcion')
-                            generator.setStack('P',value.getValor())
-                            generator.addGoto(entorno.returnLbl)
-                            generator.addComment('Fin del resultado a retornar')
+                            if value.getTrueLbl() == '':
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.setStack('P',value.getValor())
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
+                            else:
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.putLabel(value.getTrueLbl())
+                                generator.setStack('P', '1')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.putLabel(value.getFalseLbl())
+                                generator.setStack('P', '0')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
                 entorno.breakLbl = ''
                 entorno.continueLbl = ''
 
@@ -98,6 +109,7 @@ class For(Instruccion):
                 Lbl2 = generator.newLabel()
                 Lbl3 = generator.newLabel()
                 fin = self.rango[1].compilar(tree,table)
+                if isinstance(fin, Excepcion): return fin
                 self.inicio.compilar(tree,entorno)
                 generator.putLabel(Lbl0)
                 variable = table.getTabla(self.inicio.id)
@@ -122,10 +134,20 @@ class For(Instruccion):
                         generator.addGoto(Lbl3)
                     if isinstance(value, ReturnE):
                         if entorno.returnLbl != '':
-                            generator.addComment('Resultado a retornar en la funcion')
-                            generator.setStack('P',value.getValor())
-                            generator.addGoto(entorno.returnLbl)
-                            generator.addComment('Fin del resultado a retornar')
+                            if value.getTrueLbl() == '':
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.setStack('P',value.getValor())
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
+                            else:
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.putLabel(value.getTrueLbl())
+                                generator.setStack('P', '1')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.putLabel(value.getFalseLbl())
+                                generator.setStack('P', '0')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
                 entorno.breakLbl = ''
                 entorno.continueLbl = ''
                 tmp7 = generator.addTemp()
@@ -179,10 +201,20 @@ class For(Instruccion):
                                 generator.addGoto(Lbl2)
                             if isinstance(value, ReturnE):
                                 if entorno.returnLbl != '':
-                                    generator.addComment('Resultado a retornar en la funcion')
-                                    generator.setStack('P',value.getValor())
-                                    generator.addGoto(entorno.returnLbl)
-                                    generator.addComment('Fin del resultado a retornar')
+                                    if value.getTrueLbl() == '':
+                                        generator.addComment('Resultado a retornar en la funcion')
+                                        generator.setStack('P',value.getValor())
+                                        generator.addGoto(entorno.returnLbl)
+                                        generator.addComment('Fin del resultado a retornar')
+                                    else:
+                                        generator.addComment('Resultado a retornar en la funcion')
+                                        generator.putLabel(value.getTrueLbl())
+                                        generator.setStack('P', '1')
+                                        generator.addGoto(entorno.returnLbl)
+                                        generator.putLabel(value.getFalseLbl())
+                                        generator.setStack('P', '0')
+                                        generator.addGoto(entorno.returnLbl)
+                                        generator.addComment('Fin del resultado a retornar')
                         entorno.breakLbl = ''
                         entorno.continueLbl = ''
                         generator.addGoto(Lbl3)
@@ -230,10 +262,20 @@ class For(Instruccion):
                                 generator.addGoto(Lbl3)
                             if isinstance(value, ReturnE):
                                 if entorno.returnLbl != '':
-                                    generator.addComment('Resultado a retornar en la funcion')
-                                    generator.setStack('P',value.getValor())
-                                    generator.addGoto(entorno.returnLbl)
-                                    generator.addComment('Fin del resultado a retornar')
+                                    if value.getTrueLbl() == '':
+                                        generator.addComment('Resultado a retornar en la funcion')
+                                        generator.setStack('P',value.getValor())
+                                        generator.addGoto(entorno.returnLbl)
+                                        generator.addComment('Fin del resultado a retornar')
+                                    else:
+                                        generator.addComment('Resultado a retornar en la funcion')
+                                        generator.putLabel(value.getTrueLbl())
+                                        generator.setStack('P', '1')
+                                        generator.addGoto(entorno.returnLbl)
+                                        generator.putLabel(value.getFalseLbl())
+                                        generator.setStack('P', '0')
+                                        generator.addGoto(entorno.returnLbl)
+                                        generator.addComment('Fin del resultado a retornar')
                         entorno.breakLbl = ''
                         entorno.continueLbl = ''
                         generator.addGoto(Lbl3)
@@ -253,6 +295,7 @@ class For(Instruccion):
                 entorno = Tabla_Simbolo(entorno)
                 tmp = self.inicio.gosth = value.getValue()
                 pos = self.inicio.compilar(tree, entorno)
+                if isinstance(pos, Excepcion): return pos
 
                 tmp3 = generator.addTemp()
                 tmp4 = generator.addTemp()
@@ -274,10 +317,20 @@ class For(Instruccion):
                         generator.addGoto(Lbl3)
                     if isinstance(value, ReturnE):
                         if entorno.returnLbl != '':
-                            generator.addComment('Resultado a retornar en la funcion')
-                            generator.setStack('P',value.getValor())
-                            generator.addGoto(entorno.returnLbl)
-                            generator.addComment('Fin del resultado a retornar')
+                            if value.getTrueLbl() == '':
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.setStack('P',value.getValor())
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
+                            else:
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.putLabel(value.getTrueLbl())
+                                generator.setStack('P', '1')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.putLabel(value.getFalseLbl())
+                                generator.setStack('P', '0')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
                 generator.addGoto(Lbl3)
                 generator.putLabel(Lbl3)
                 generator.addExp(tmp, tmp, '1','+')

@@ -27,7 +27,7 @@ reserved = {
     'continue'  :   'RCONTINUE',
     'local'     :   'RLOCAL',
     'global'    :   'RGLOBAL',
-    'Array'      :   'RLIST',
+    'Vector'    :   'RLIST',
     'struct'    :   'RSTRUCT',
     'mutable'   :   'RMUTABLE',
     'nothing'   :   'RNOTHING'
@@ -62,7 +62,9 @@ tokens  = [
     'CHAR',
     'ID',
     'CORI',
-    'CORD'
+    'CORD',
+    'LLI',
+    'LLD'
 ]+ list(reserved.values())
 
 # Tokens
@@ -90,6 +92,8 @@ t_AND           = r'&&'
 t_NOT           = r'\!'
 t_CORI          = r'\['
 t_CORD          = r'\]'
+t_LLI           = r'\{'
+t_LLD           = r'\}'
 
 #Decimal
 def t_DECIMAL(t):
