@@ -38,12 +38,13 @@ class Funcion(Instruccion):
         Lblreturn = generator.newLabel()
         entorno.returnLbl = Lblreturn
         entorno.size = 1
-        for param in self.params:
-            if not isinstance(param["tipo"], List):
-                entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
-            else:
-                simbolo = entorno.setTabla(param["ide"], param["tipo"][0],True)
-                simbolo.setTipoAux(param["tipo"][1])
+        if self.params:
+            for param in self.params:
+                if not isinstance(param["tipo"], List):
+                    entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
+                else:
+                    simbolo = entorno.setTabla(param["ide"], param["tipo"][0],True)
+                    simbolo.setTipoAux(param["tipo"][1])
         generator.addBeginFunc(self.id)
 
 

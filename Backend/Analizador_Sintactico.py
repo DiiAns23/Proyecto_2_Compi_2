@@ -170,7 +170,7 @@ def p_llamada_function_1(t):
 
 def p_llamada_function_2(t):
     'llamada_function : ID PARI PARD'
-    #t[0] = Llamada_Funcion(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Llamada_Funcion(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_declaracion_function_1(t):
     '''declaracion_function : RFUNCTION ID PARI parametros PARD instrucciones REND'''
@@ -178,11 +178,11 @@ def p_declaracion_function_1(t):
 
 def p_declaracion_function_2(t):
     '''declaracion_function : RFUNCTION ID PARI PARD instrucciones REND'''
-    t[0] = Funcion(t[2], None, t[5], Tipo.NULO, t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], [], t[5], Tipo.NULO, t.lineno(2), find_column(input, t.slice[1]))
 
 def p_declaracion_function_3(t):
     '''declaracion_function : RFUNCTION ID PARI PARD DPUNTOS DPUNTOS tipo instrucciones REND'''
-    t[0] = Funcion(t[2], None, t[8], t[7], t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], [], t[8], t[7], t.lineno(2), find_column(input, t.slice[1]))
 
 def p_declaracion_function_4(t):
     '''declaracion_function : RFUNCTION ID PARI parametros PARD DPUNTOS DPUNTOS tipo instrucciones REND'''
@@ -530,31 +530,31 @@ def parse(inp):
     lexer.lineno = 1
     return parser.parse(inp)
 
-f = open("Backend/entrada.jl", "r")
-entrada = f.read()
-print("ARCHIVO DE ENTRADA:")
-print("")
-print(entrada)
-print("")
-print("ARCHIVO DE SALIDA:")
+# f = open("Backend/entrada.jl", "r")
+# entrada = f.read()
+# print("ARCHIVO DE ENTRADA:")
+# print("")
+# print(entrada)
+# print("")
+# print("ARCHIVO DE SALIDA:")
 
 
-genAux = Generador()
-genAux.cleanAll()
-generador = genAux.getInstance()
+# genAux = Generador()
+# genAux.cleanAll()
+# generador = genAux.getInstance()
 
-instrucciones = parse(entrada)
-ast = Arbol(instrucciones)
-TsgGlobal = Tabla_Simbolo()
-ast.setTSglobal(TsgGlobal)
+# instrucciones = parse(entrada)
+# ast = Arbol(instrucciones)
+# TsgGlobal = Tabla_Simbolo()
+# ast.setTSglobal(TsgGlobal)
 
-agregarNativas(ast)
+# agregarNativas(ast)
 
-for instruccion in ast.getInst():
-    value = instruccion.compilar(ast, TsgGlobal)
-    if isinstance(value, Excepcion):
-        ast.setExcepciones(value)
-for error in ast.getExcepciones():
-    print(error.toString2())
-print(generador.getCode())
+# for instruccion in ast.getInst():
+#     value = instruccion.compilar(ast, TsgGlobal)
+#     if isinstance(value, Excepcion):
+#         ast.setExcepciones(value)
+# for error in ast.getExcepciones():
+#     print(error.toString2())
+# print(generador.getCode())
 
