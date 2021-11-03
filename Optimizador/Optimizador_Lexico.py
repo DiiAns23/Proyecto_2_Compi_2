@@ -45,7 +45,6 @@ tokens  = [
     'ENTERO',
     'DECIMAL',
     'CADENA',
-    'CHAR',
     'ID',
     'CORI',
     'CORD',

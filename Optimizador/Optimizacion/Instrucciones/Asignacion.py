@@ -19,12 +19,12 @@ class Asignacion(c3d):
     def selfAsignacion(self):
         if isinstance(self.exp, Variable):
             aux = self.place.getCode() == self.exp.getCode()
-        elif isinstance(self.exp, Expresion):
-            aux = self.place.getCode() == self.exp.der.getCode() or self.place.getCode() == self.exp.izq.getCode()
         elif isinstance(self.exp, Acceso):
-            aux = False
+            aux = self.place.getCode() == self.exp.getCode()
+        else:
+            aux = self.place.getCode() == self.exp.der.getCode() or self.place.getCode() == self.exp.izq.getCode()
         return aux
-    
+
     def getPlace(self):
         return self.place.getCode()
     

@@ -16,6 +16,7 @@ class Declaracion_Arrays(Instruccion):
         self.tipoAux = tipoAux
         self.length = len(self.values)
         self.multiDim = False
+        self.isinStruct = False
     
     def compilar(self, tree, table):
         genAux = Generador()
@@ -63,15 +64,18 @@ class Declaracion_Arrays(Instruccion):
                     
                     if self.multiDim:
                         return Return(t0, Tipo.ARRAY, True, self.tipoAux[1])
-                    simbolo = table.setTabla(self.id,self.tipo,True)
-                    simbolo.setTipoAux(self.tipoAux[1])
-                    simbolo.setLength(length)
-                    tempPos = simbolo.pos
-                    if(not simbolo.isGlobal):
-                        tempPos = generator.addTemp()
-                        generator.addExp(tempPos, 'P', simbolo.pos, "+")
-                    generator.setStack(tempPos, t0)
-                    generator.addComment('Fin de la compilacion del Array')
+                    if self.isinStruct == False:
+                        simbolo = table.setTabla(self.id,self.tipo,True)
+                        simbolo.setTipoAux(self.tipoAux[1])
+                        simbolo.setLength(length)
+                        tempPos = simbolo.pos
+                        if not simbolo.isGlobal:
+                            tempPos = generator.addTemp()
+                            generator.addExp(tempPos, 'P', simbolo.pos, "+")
+                        generator.setStack(tempPos, t0)
+                        generator.addComment('Fin de la compilacion del Array')
+                    else:
+                        return Return(t0, Tipo.ARRAY, True, self.tipoAux[1])
             else:
                 generator.addComment('Compilacion del Array')
                 t0 = generator.addTemp()
@@ -83,26 +87,47 @@ class Declaracion_Arrays(Instruccion):
                 generator.addExp('H','H',apuntador,'+')
                 generator.addSpace()
                 length = 0
-                tipoAux = ''
+                tipoAux = []
+                tipoAux.append(Tipo.ARRAY)
+                aux = ''
                 for value in self.values:
                     if not isinstance(value, Declaracion_Arrays):
                         val = value.compilar(tree,table)
-                        tipoAux = val.getTipo()
+                        aux = val.getTipo()
                         generator.setHeap(t1,val.getValue())
                         generator.addExp(t1,t1,'1','+')
                         generator.addSpace()
                         length += 1
+                    else:
+                        value.multiDim = True
+                        value.tipoAux = value.getTipo()
+                        val = value.compilar(tree,table)
+                        tipoAux.append(val.getTipoAux())
+                        generator.setHeap(t1,val.getValue())
+                        generator.addExp(t1,t1,'1','+')
+                        generator.addSpace()
+                        length += 1
+                tipoAux.append(aux)
+                if self.multiDim:
+                    return Return(t0, Tipo.ARRAY, True, tipoAux)
+                if self.isinStruct == False:
+                    simbolo = table.setTabla(self.id,self.tipo,True)
+                    simbolo.setTipoAux(tipoAux)
+                    simbolo.setLength(length)
+                    tempPos = simbolo.pos
+                    if not simbolo.isGlobal:
+                        tempPos = generator.addTemp()
+                        generator.addExp(tempPos, 'P', simbolo.pos, "+")
+                    generator.setStack(tempPos, t0)
+                    generator.addComment('Fin de la compilacion del Array')
+                else:
+                    return Return(t0, Tipo.ARRAY, True, tipoAux)
 
-                simbolo = table.setTabla(self.id,self.tipo,True)
-                simbolo.setTipoAux(tipoAux)
-                simbolo.setLength(length)
-                tempPos = simbolo.pos
-                if(not simbolo.isGlobal):
-                    tempPos = generator.addTemp()
-                    generator.addExp(tempPos, 'P', simbolo.pos, "+")
-                generator.setStack(tempPos, t0)
-                generator.addComment('Fin de la compilacion del Array')
-
+    def getTipoAux(self):
+        return self.tipoAux
+    
+    def setTipoAux(self, tipo):
+        self.tipoAux = tipo
 
     def getTipo(self):
         return self.tipo

@@ -73,6 +73,9 @@ class Declaracion(Instruccion):
                     simbolo.setTipoAux(val.getTipoAux())
                     simbolo.setLength(val.getLength())
                     simbolo.setReferencia(val.getReferencia())
+                elif val.getTipo() == Tipo.STRUCT:
+                    simbolo = table.setTabla(self.id, val.getTipo(), True, self.find)
+                    simbolo.setParams(val.length)
                 else:
                     # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap
                     simbolo = table.setTabla(self.id, val.getTipo(), (val.type == Tipo.STRING or val.type == Tipo.STRUCT or val.type == Tipo.ARRAY or val.type == Tipo.CHAR), self.find)
@@ -101,10 +104,13 @@ class Declaracion(Instruccion):
                 generator.addSpace()
         else:
             generator.addComment("Compilacion de valor de variable")
-            simbolo = table.setTabla(self.id, Tipo.CHAR, True)
+            if not self.tipo:
+                simbolo = table.setTabla(self.id, Tipo.CHAR, True)
+            else:
+                simbolo = table.setTabla(self.id, self.tipo, True)
             
             tempPos = simbolo.getPos()
-            if(not simbolo.isGlobal):
+            if not simbolo.isGlobal:
                 tempPos = generator.addTemp()
                 generator.addExp(tempPos, 'P', simbolo.pos, "+")
 

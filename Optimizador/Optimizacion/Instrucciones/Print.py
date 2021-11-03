@@ -8,7 +8,9 @@ class Print(c3d):
         super().__init__(fila, colum)
     
     def getCode(self):
-        if self.str != '%f':
+        if self.deleted:
+            return ''
+        elif self.str != '%f':
             return f'fmt.Printf("{self.str}", int({self.exp.getCode()}));'
         else:
             return f'fmt.Printf("{self.str}", {self.exp.getCode()});'

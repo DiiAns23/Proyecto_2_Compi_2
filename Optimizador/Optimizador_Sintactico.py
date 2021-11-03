@@ -223,7 +223,7 @@ input = ''
 def getErrores():
     return errores
 
-def parse(inp):
+def parse2(inp):
     global errores
     global parser
     errores = []
@@ -233,16 +233,15 @@ def parse(inp):
     lexer.lineno = 1
     return parser.parse(inp)
 
-f = open("Backend/optimizar.txt", "r")
-entrada = f.read()
-print("ARCHIVO DE ENTRADA:")
-print("")
-# print(entrada)
-print("")
-print("ARCHIVO DE SALIDA:")
-a = parse(entrada)
-print(a.getCode())
-a.Mirilla()
-print(a.getCode())
-print("Sin errores :3")
+# f = open("Optimizador/optimizar.txt", "r")
+# entrada = f.read()
+# print("ARCHIVO DE ENTRADA:")
+# print("")
+# # print(entrada)
+# print("")
+# print("ARCHIVO DE SALIDA:")
+# a = parse2(entrada)
+# a.Mirilla()
+# print(a.getCode())
+# print("Sin errores :3")
 

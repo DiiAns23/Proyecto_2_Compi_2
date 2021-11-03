@@ -7,7 +7,6 @@ class Tabla_Simbolo:
     def __init__(self, anterior = None):
         self.tabla = {}
         self.anterior = anterior
-        
         # NUEVO
         self.breakLbl = ''
         self.continueLbl = ''
@@ -47,7 +46,6 @@ class Tabla_Simbolo:
             else:
                 tablaActual = tablaActual.anterior
         return False
-
 
     def getTabla(self, ide):
         tablaActual = self
