@@ -1,6 +1,7 @@
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
+from Instrucciones.Return import ReturnE
 from Instrucciones.Break import *
 from Instrucciones.Continue import Continue
 from TablaSimbolos.Generador import *
@@ -34,6 +35,7 @@ class While(Instruccion):
                     entorno = Tabla_Simbolo(table)
                     entorno.breakLbl = condicion.getFalseLbl()
                     entorno.continueLbl = Lbl0
+                    entorno.returnLbl = table.returnLbl
                     value = instruccion.compilar(tree, entorno)
                     if isinstance(value, Excepcion): 
                         tree.setExcepciones(condicion)
@@ -41,8 +43,25 @@ class While(Instruccion):
                         generator.addGoto(condicion.getFalseLbl())
                     if isinstance(value, Continue):
                         generator.addGoto(Lbl0)
+                    if isinstance(value, ReturnE):
+                        if entorno.returnLbl != '':
+                            if value.getTrueLbl() == '':
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.setStack('P',value.getValor())
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
+                            else:
+                                generator.addComment('Resultado a retornar en la funcion')
+                                generator.putLabel(value.getTrueLbl())
+                                generator.setStack('P', '1')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.putLabel(value.getFalseLbl())
+                                generator.setStack('P', '0')
+                                generator.addGoto(entorno.returnLbl)
+                                generator.addComment('Fin del resultado a retornar')
                 table.breakLbl = ''
                 table.continueLbl = ''
+
                 generator.addGoto(Lbl0)
                 generator.putLabel(condicion.getFalseLbl())
                 generator.addComment("Finaliza Loop While")
@@ -60,6 +79,10 @@ class While(Instruccion):
         elif self.condicion.type == OperadorRelacional.IGUALDAD:
             return True
         elif self.condicion.type == OperadorRelacional.DIFERENTE:
+            return True
+        elif self.condicion.type == OperadorLogico.OR:
+            return True
+        elif self.condicion.type == OperadorLogico.AND:
             return True
         else:
             return False

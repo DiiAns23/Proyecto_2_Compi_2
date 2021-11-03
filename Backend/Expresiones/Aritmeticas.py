@@ -2,6 +2,7 @@ from Abstract.Expression import *
 from Abstract.Return import *
 from Abstract.Tipo import *
 from Abstract.Tipo import *
+from Expresiones.Llamada_Funcion import Llamada_Funcion
 from TablaSimbolos.Generador import *
 from TablaSimbolos.Excepcion import *
 
@@ -19,27 +20,41 @@ class Aritmeticas(Expression):
         generator = genAux.getInstance()
         temp = ''
         op = ''
-
+        leftValue = ''
+        rightValue = ''
         if self.left != None:
             leftValue = self.left.compilar(tree, table)
+            if isinstance(leftValue, Excepcion): return leftValue
+            if leftValue.getTipo() == Tipo.ARRAY:
+                leftValue.setTipo(leftValue.getTipoAux())
+            
         if self.right != None:
-            rightValue = self.right.compilar(tree, table)
+            if isinstance(self.right, Llamada_Funcion):
+                self.right.guardarTemps(generator, table, [leftValue.getValue()])
+                rightValue = self.right.compilar(tree, table)
+                if isinstance(rightValue, Excepcion): return rightValue
+                self.right.recuperarTemps(generator, table, [leftValue.getValue()])
+            else:
+                rightValue = self.right.compilar(tree, table)
+                if isinstance(rightValue, Excepcion): return rightValue
+                if rightValue.getTipo() == Tipo.ARRAY:
+                    rightValue.setTipo(rightValue.getTipoAux())
 
-        if (self.getTipo() == OperadorAritmetico.UME):
+        if self.getTipo() == OperadorAritmetico.UME:  # 0-5
             op = '-'
             temp = generator.addTemp()
             if rightValue.getTipo() == Tipo.INT:
-                generator.addExp(temp, 0, rightValue.getValue(), op)
+                generator.addExp(temp, '0', rightValue.getValue(), op)
                 return Return(temp, Tipo.INT, True)
             
             if rightValue.getTipo() == Tipo.FLOAT:
-                generator.addExp(temp, 0, rightValue.getValue(), op)
+                generator.addExp(temp, '0', rightValue.getValue(), op)
                 return Return(temp, Tipo.FLOAT, True)
 
             return Excepcion("Semantico", "Operacion 'Resta' no permitida en: ", self.fila, self.column)          
 
 
-        elif (self.getTipo() == OperadorAritmetico.MAS):
+        elif self.getTipo() == OperadorAritmetico.MAS:
             op = '+'
             temp = generator.addTemp()
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
@@ -60,7 +75,7 @@ class Aritmeticas(Expression):
 
             return Excepcion("Semantico", "Operacion 'Suma' no permitida en: ", self.fila, self.colum)
             
-        elif(self.getTipo() == OperadorAritmetico.MEN):
+        elif self.getTipo() == OperadorAritmetico.MEN:
             op = '-'
             temp = generator.addTemp()
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
@@ -81,7 +96,7 @@ class Aritmeticas(Expression):
 
             return Excepcion("Semantico", "Operacion 'Resta' no permitida en: ", self.fila, self.column)
 
-        elif(self.getTipo() == OperadorAritmetico.POR):
+        elif self.getTipo() == OperadorAritmetico.POR:
             op = '*'
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
                 temp = generator.addTemp()
@@ -122,9 +137,9 @@ class Aritmeticas(Expression):
 
                 return Return(t9, Tipo.STRING, False)
 
-            return Excepcion("Semantico", "Operacion 'Multiplicacion' no permitida en: ", self.fila, self.column)
+            return Excepcion("Semantico", "Operacion 'Multiplicacion' no permitida en: ", self.fila, self.colum)
 
-        elif(self.getTipo() == OperadorAritmetico.DIV):
+        elif self.getTipo() == OperadorAritmetico.DIV:
             op = '/' 
             temp = generator.addTemp()
             bandera = False
@@ -152,7 +167,7 @@ class Aritmeticas(Expression):
                 return Return(temp, Tipo.FLOAT, True)
             return Excepcion("Semantico", "Operacion 'Division' no permitida en: ", self.fila, self.column)
 
-        elif (self.getTipo() == OperadorAritmetico.POT):
+        elif self.getTipo() == OperadorAritmetico.POT:
             tipo = ''
             if leftValue.getTipo() == Tipo.INT and rightValue.getTipo() == Tipo.INT:
                 tipo = Tipo.INT

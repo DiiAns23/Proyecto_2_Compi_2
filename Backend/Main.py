@@ -9,6 +9,7 @@ from TablaSimbolos.Arbol import Arbol
 from TablaSimbolos.Tabla_Simbolos import *
 from TablaSimbolos.Generador import *
 from Analizador_Sintactico import parse as Analizar
+from Analizador_Sintactico import agregarNativas as Nativas
 
 sys.setrecursionlimit(10000000)
 
@@ -26,6 +27,7 @@ def prueba():
         entrada = json.loads(entrada)
         global tmp_val
         tmp_val = entrada["codigo"]
+        
         return redirect(url_for("salida"))
     
 @app.route('/salida')
@@ -37,12 +39,11 @@ def salida():
     genAux = Generador()
     genAux.cleanAll()
     generador = genAux.getInstance()
-
     instrucciones = Analizar(tmp_val)
     ast = Arbol(instrucciones)
     TsgGlobal = Tabla_Simbolo()
     ast.setTSglobal(TsgGlobal)
-
+    Nativas(ast)
     try:
         for instruccion in ast.getInst():
             value = instruccion.compilar(ast, TsgGlobal)
@@ -53,6 +54,7 @@ def salida():
         return json.dumps(consola)
     except:
         print("Error al ejecutar las instrucciones :c")
+
 
 @app.route('/errores')
 def getErrores():

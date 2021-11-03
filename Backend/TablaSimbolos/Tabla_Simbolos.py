@@ -7,11 +7,11 @@ class Tabla_Simbolo:
     def __init__(self, anterior = None):
         self.tabla = {}
         self.anterior = anterior
-        
         # NUEVO
         self.breakLbl = ''
         self.continueLbl = ''
         self.returnLbl = ''
+        self.recTemps = False
         self.size = 0
         if(anterior != None):
             self.size = self.anterior.size
@@ -46,7 +46,6 @@ class Tabla_Simbolo:
             else:
                 tablaActual = tablaActual.anterior
         return False
-
 
     def getTabla(self, ide):
         tablaActual = self

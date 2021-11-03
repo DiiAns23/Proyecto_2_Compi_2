@@ -1,5 +1,14 @@
 from Abstract.Tipo import *
+from Expresiones.Struct import Struct
+from Instrucciones.Declaracion_Structs import *
+from Nativas.LowerCase import *
+from Nativas.UpperCase import *
+from Nativas.Float import *
+from Nativas.Trunc import Trunc
+from Expresiones.Llamada_Funcion import *
+from Instrucciones.Funcion import Funcion
 from Instrucciones.Asignacion_Arrays import *
+from Nativas.Length import *
 from Expresiones.Array import Array
 from Instrucciones.Break import *
 from Instrucciones.Continue import *
@@ -131,7 +140,7 @@ def p_declaracion_array(t):
 
 def p_declaracion_array_2(t):
     'declaracion_instr : ID IGUAL CORI parametros_ll CORD DPUNTOS DPUNTOS tipo'
-    #t[0] = Declaracion(t[1], t.lineno(1), find_column(input, t.slice[1]), t[8], t[4])
+    t[0] = Declaracion_Arrays(t[1], t.lineno(2),find_column(input, t.slice[2]), t[4], t[8])
 
 def p_asignacion_array(t):
     'asignacion_array : ID arrays_1 IGUAL expresion'
@@ -143,7 +152,7 @@ def p_inmutable_struct(t):
 
 def p_mutable_struct(t):
     'mutable_struct : RMUTABLE RSTRUCT ID params_structs REND'
-    #t[0] = Declaracion_Struct(t[3], t.lineno(1), find_column(input, t.slice[1]),True,t[4])
+    t[0] = Declaracion_Sructs(True,t[3],t[4], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_asignacion_struct(t):
     'asignacion_struct : ID PUNTO asignacion_params IGUAL expresion'
@@ -151,27 +160,35 @@ def p_asignacion_struct(t):
 
 def p_declaracion_aux1(t):
     'declaracion_aux  :   ID PTCOMA'
-   # t[0] = Declaracion(t[1], t.lineno(1), find_column(input, t.slice[1]),None,None)
+    t[0] = Declaracion(t[1],None, t.lineno(1), find_column(input, t.slice[1]),None)
     
 def p_declaracion_aux2(t):
     'declaracion_aux  :   ID DPUNTOS DPUNTOS tipo PTCOMA'
-    #t[0] = Declaracion(t[1], t.lineno(1), find_column(input, t.slice[1]),t[4],None)
+    t[0] = {'ide':t[1], 'tipo':t[4]}
 
 def p_llamada_function_1(t):
-    'llamada_function : ID PARI parametros_ll PARD'
-    #t[0] = Llamada_Funcion(t[1],t[3], t.lineno(1), find_column(input, t.slice[1]))
+    'llamada_function : ID PARI parametros_ll PARD' # [3,4,"Diego", [1,2,3,4,suma(3,2)], a[2]]
+    t[0] = Llamada_Funcion(t[1],t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_llamada_function_2(t):
     'llamada_function : ID PARI PARD'
-    #t[0] = Llamada_Funcion(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Llamada_Funcion(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_declaracion_function_1(t):
     '''declaracion_function : RFUNCTION ID PARI parametros PARD instrucciones REND'''
-    #t[0] = Funcion(t[2], t[4], t[6], t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], t[4], t[6],Tipo.NULO, t.lineno(2), find_column(input, t.slice[1]))
 
 def p_declaracion_function_2(t):
     '''declaracion_function : RFUNCTION ID PARI PARD instrucciones REND'''
-   # t[0] = Funcion(t[2], [], t[5], t.lineno(2), find_column(input, t.slice[1]))
+    t[0] = Funcion(t[2], [], t[5], Tipo.NULO, t.lineno(2), find_column(input, t.slice[1]))
+
+def p_declaracion_function_3(t):
+    '''declaracion_function : RFUNCTION ID PARI PARD DPUNTOS DPUNTOS tipo instrucciones REND'''
+    t[0] = Funcion(t[2], [], t[8], t[7], t.lineno(2), find_column(input, t.slice[1]))
+
+def p_declaracion_function_4(t):
+    '''declaracion_function : RFUNCTION ID PARI parametros PARD DPUNTOS DPUNTOS tipo instrucciones REND'''
+    t[0] = Funcion(t[2], t[4], t[9], t[8], t.lineno(2), find_column(input, t.slice[1]))
 
 def p_condicional_if_0(t):
     'condicional_ifs : RIF condicional_if'
@@ -199,11 +216,8 @@ def p_loop_for_1(t):
 
 def p_loop_for_2(t):
     '''loop_for : RFOR declaracion_instr RIN expresion instrucciones REND'''
-    #t[0] = For(t[2], [t[4]], t[5], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = For(t[2], [t[4]], t[5], t.lineno(1), find_column(input, t.slice[1]))
 
-def p_loop_for_3(t):
-    '''loop_for : RFOR declaracion_instr RIN CORI parametros_ll CORD instrucciones REND'''
-    #t[0] = For(t[2], [t[5]], t[7], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_return(t):
     'r_return : RRETURN expresion'
@@ -248,17 +262,8 @@ def p_params5(t):
     t[0] = [t[1]]
 
 def p_params6(t):
-    '''parametro_ll : expresion
-                    | RINT
-                    | RFLOAT'''
-    if t[1] == "Int64":
-        print("Es int 64")
-        #t[0] = Primitivos(TIPO.ENTERO, "Int64", t.lineno(1), find_column(input, t.slice[1]))
-    elif t[1] == "Float64":
-        print("Es float 64")
-        #t[0] = Primitivos(TIPO.FLOAT, "Float", t.lineno(1), find_column(input, t.slice[1]))
-    else:
-        t[0] = t[1]
+    '''parametro_ll : expresion'''
+    t[0] = t[1]
 
 def p_params7(t):
     'arrays_1 :  arrays_1 CORI arrays_2 CORD'
@@ -296,8 +301,9 @@ def p_params14(t):
     t[0] = [t[1]]
 
 def p_params15(t):
-    'asignacion_param  : ID'
+    'asignacion_param  : expresion'
     t[0] = t[1]
+
 
 def p_expresion_binaria(t):
     '''expresion : expresion MAS expresion
@@ -317,11 +323,8 @@ def p_expresion_binaria(t):
                   '''
     if t[2] == '+'  : 
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.MAS, t.lineno(2), find_column(input, t.slice[2]))
-        #t[0] = Aritmetica(t[1],t[3],OperadorAritmetico.MAS, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '-':
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.MEN, t.lineno(2), find_column(input, t.slice[2]))
-    elif t[2] == ',':
-        print("Coma")
     elif t[2] == '*': 
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.POR, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '/': 
@@ -332,27 +335,20 @@ def p_expresion_binaria(t):
         t[0] = Aritmeticas(t[1], t[3], OperadorAritmetico.MOD, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '==': 
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.IGUALDAD,t.lineno(2), find_column(input, t.slice[2]) )
-        #t[0] = Relacional(OperadorRelacional.IGUALDAD, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '!=': 
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.DIFERENTE,t.lineno(2), find_column(input, t.slice[2]) )
-        #t[0] = Relacional(OperadorRelacional.DIFERENTE, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '>': 
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.MAYOR,t.lineno(2), find_column(input, t.slice[2]) )
-        #t[0] = Relacional(OperadorRelacional.MAYOR, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '<': 
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.MENOR,t.lineno(2), find_column(input, t.slice[2]) )
-        #t[0] = Relacional(OperadorRelacional.MENOR, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '>=': 
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.MAYORI,t.lineno(2), find_column(input, t.slice[2]) )
-        #t[0] = Relacional(OperadorRelacional.MAYORI, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '<=':
         t[0] = Relacionales(t[1], t[3], OperadorRelacional.MENORI,t.lineno(2), find_column(input, t.slice[2]) )
-        #t[0] = Relacional(OperadorRelacional.MENORI, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '||':
         t[0] = Logicas(t[1], t[3],OperadorLogico.OR, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '&&': 
         t[0] = Logicas(t[1], t[3],OperadorLogico.AND, t.lineno(2), find_column(input, t.slice[2]))
-        #t[0] = Logica(OperadorLogico.AND, t[1], t[3], t.lineno(2), find_column(input, t.slice[2]))
 
 
 def p_expresion_unaria(t):
@@ -370,7 +366,6 @@ def p_expresion_agrupacion(t):
 def p_expresion_identificador(t):
     '''expresion : ID'''
     t[0] = Variable(t[1], t.lineno(1),find_column(input, t.slice[1]))
-    #t[0] = Identificador(t[1], t.lineno(1), find_column(input, t.slice[1]), None)
 
 def p_expresion_array(t):
     'expresion : ID arrays_1'
@@ -378,24 +373,15 @@ def p_expresion_array(t):
 
 def p_expresion_struct(t):
     'expresion : ID PUNTO asignacion_params'
-    #t[0] = Struct(t[1], t.lineno(1), find_column(input, t.slice[1]), t[3])
-
-def p_expresion_array_2(t):
-    'expresion : ID CORI DPUNTOS CORD'
-    #t[0] = Array(t[1], t.lineno(1), find_column(input, t.slice[1]), TIPO.ARRAY, None)
-
-def p_expresion_array_3(t):
-    'expresion : ID CORI expresion DPUNTOS expresion CORD'
-    #t[0] = Array(t[1], t.lineno(1), find_column(input, t.slice[1]), TIPO.ARRAY, None ,[t[3], t[5]])
+    t[0] = Struct(t[1],t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_array_4(t):
     'expresion : CORI parametros_ll CORD'
-    #t[0] = Array(None, t.lineno(1), find_column(input, t.slice[1]), TIPO.ARRAY,None, t[2])
+    t[0] = Declaracion_Arrays('',t.lineno(1), find_column(input, t.slice[1]),t[2])
 
 def p_expresion_entero(t):
     'expresion : ENTERO'
     t[0] = Primitivos(int(t[1]), Tipo.INT, t.lineno(1), find_column(input, t.slice[1]))
-   # t[0] = Primitivos(TIPO.ENTERO, t[1], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_decimal(t):
     'expresion : DECIMAL'
@@ -403,12 +389,11 @@ def p_expresion_decimal(t):
 
 def p_expresion_char(t):
     'expresion : CHAR'
-    #t[0] = Primitivos(TIPO.CHAR, t[1], t.lineno(1), find_column(input, t.slice[1]))
+    t[0] = Primitivos(t[1], Tipo.CHAR, t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_cadena(t):
     'expresion : CADENA'
     t[0] = Primitivos(str(t[1]), Tipo.STRING, t.lineno(1), find_column(input, t.slice[1]))
-    #t[0] = Primitivos(TIPO.STRING, t[1], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_true(t):
     'expresion : RTRUE'
@@ -417,10 +402,6 @@ def p_expresion_true(t):
 def p_expresion_false(t):
     'expresion : RFALSE'
     t[0] = Primitivos(False,Tipo.BOOL, t.lineno(1), find_column(input, t.slice[1]))
-
-def p_expresion_nothing(t):
-    'expresion : RNOTHING'
-    #t[0] = Primitivos(TIPO.NULO, "nothing", t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_llam(t):
     'expresion : llamada_function'
@@ -432,7 +413,7 @@ def p_tipo(t):
             | RBOOL
             | RCHAR
             | RSTRING
-            | RLIST'''
+            | ID'''
     if t[1] ==  "Int64":
         t[0] = Tipo.INT
     elif t[1] == "Float64":
@@ -443,90 +424,50 @@ def p_tipo(t):
         t[0] = Tipo.CHAR
     elif t[1] == "String":
         t[0] = Tipo.STRING
-    elif t[1] == "List":
-        t[0] = Tipo.ARRAY
+    else:
+        t[0] = Tipo.STRUCT
+    
+def p_tipo_2(t):
+    '''tipo : tipo LLI tipo LLD '''
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_tipo_3(t):
+    '''tipo : tipo_2'''
+    t[0] = [t[1]]
+
+def p_tipo_4(t):
+    '''tipo_2 : RLIST'''
+    t[0] = Tipo.ARRAY
 
 def agregarNativas(ast):
     nombre = "uppercase"
-    #params = [{'tipo':TIPO.STRING, 'ide':'uppercase##Param1'}]
+    params = [{'tipo':Tipo.STRING, 'ide':'uppercase##Param1'}]
     inst = []
-    #upper = UpperCase(nombre, params, inst, -1, -1)
-    #ast.setFunciones(upper)
+    upper = UpperCase(nombre, params, inst, Tipo.STRING, -1, -1)
+    ast.setFunciones('uppercase',upper)
 
     nombre = "lowercase"
-    #params = [{'tipo':TIPO.STRING, 'ide':'lowercase##Param1'}]
-    #lower = LoweCase(nombre, params, inst, -1, -1)
-    #ast.setFunciones(lower)
-
-    nombre = "log10"
-    params = [{'tipo': 'NoTipo', 'ide': 'log10##Param1'}]
-    #log_10 = Logaritmo(nombre, params, inst, -1,-1)
-    #ast.setFunciones(log_10)
-
-    nombre = "log"
-    params = [{'tipo': 'NoTipo', 'ide': 'log##Param1'}, {'tipo':'NoTipo', 'ide': 'log##Param2'}]
-    #log_base = Logaritmo_Base(nombre, params, inst, -1,-1)
-    #ast.setFunciones(log_base)
-
-    nombre = "sin"
-    params = [{'tipo': 'NoTipo', 'ide': 'sin##Param1'}]
-    #sin = Seno(nombre, params, inst, -1,-1)
-    #ast.setFunciones(sin)
-
-    nombre = "cos"
-    params = [{'tipo': 'NoTipo', 'ide': 'cos##Param1'}]
-    #cos = Coseno(nombre, params, inst, -1,-1)
-    #ast.setFunciones(cos)
-
-    nombre = "tan"
-    params = [{'tipo': 'NoTipo', 'ide': 'tan##Param1'}]
-    #tan = Tangente(nombre, params, inst, -1,-1)
-    #ast.setFunciones(tan)
-
-    nombre = "sqrt"
-    params = [{'tipo': 'NoTipo', 'ide': 'sqrt##Param1'}]
-    #sqrt = Raiz(nombre, params, inst, -1,-1)
-    #ast.setFunciones(sqrt)
-
-    nombre = "parse"
-    #params = [{'tipo': 'NoTipo', 'ide': 'parse##Param1'}, {'tipo':TIPO.STRING, 'ide': 'parse##Param2'}]
-    #parse = Parse(nombre, params, inst, -1,-1)
-    #ast.setFunciones(parse)
+    params = [{'tipo':Tipo.STRING, 'ide':'lowercase##Param1'}]
+    lower = LowerCase(nombre, params, inst,Tipo.STRING, -1, -1)
+    ast.setFunciones('lowercase',lower)
 
     nombre = "length"
-    params = [{'tipo':'NoTipo', 'ide':'length##Param1'}]
-    #length = Length(nombre, params, inst, -1, -1)
-    #ast.setFunciones(length)
-
-    nombre = "typeof"
-    params = [{'tipo':'NoTipo', 'ide':'typeof##Param1'}]
-    #typeof = Typeof(nombre, params, inst, -1, -1)
-    #ast.setFunciones(typeof)
+    params = [{'tipo':Tipo.ARRAY, 'ide':'length##Param1'}]
+    length = Length(nombre, params, inst,Tipo.INT, -1, -1)
+    ast.setFunciones('length',length)
 
     nombre = "float"
-    #params = [{'tipo':TIPO.ENTERO, 'ide':'float##Param1'}]
-    #floats = Float(nombre, params, inst, -1, -1)
-    #ast.setFunciones(floats)
+    params = [{'tipo':Tipo.INT, 'ide':'float##Param1'}]
+    floats = Float(nombre, params, inst,Tipo.FLOAT, -1, -1)
+    ast.setFunciones('float', floats)
 
     nombre = "trunc"
-    #params = [{'tipo':TIPO.FLOAT, 'ide':'trunc##Param1'}]
-    #trunc = Trunc(nombre, params, inst, -1, -1)
-    #ast.setFunciones(trunc)
+    params = [{'tipo':Tipo.FLOAT, 'ide':'trunc##Param1'}]
+    trunc = Trunc(nombre, params, inst, Tipo.INT, -1, -1)
+    ast.setFunciones('trunc',  trunc)
 
-    nombre = "string"
-    params = [{'tipo':'NoTipo', 'ide':'string##Param1'}]
-    #string = Stringg(nombre, params, inst, -1, -1)
-    #ast.setFunciones(string)
 
-    nombre = "push"
-    #params = [{'tipo':TIPO.ARRAY, 'ide':'push##Param1'}, {'tipo':'NoTipo', 'ide':'push##Param2'}]
-    #push = Push(nombre, params, inst, -1,-1)
-    #ast.setFunciones(push)
-
-    nombre = "pop"
-    #params = [{'tipo':TIPO.ARRAY, 'ide':'pop##Param1'}]
-    #pop = Pop(nombre, params, inst, -1,-1)
-    #ast.setFunciones(pop)
 
     
 def p_error(t):
@@ -547,7 +488,7 @@ def parse(inp):
     lexer.lineno = 1
     return parser.parse(inp)
 
-f = open("Backend/entrada.txt", "r")
+f = open("Backend/entrada.jl", "r")
 entrada = f.read()
 print("ARCHIVO DE ENTRADA:")
 print("")
@@ -564,14 +505,14 @@ instrucciones = parse(entrada)
 ast = Arbol(instrucciones)
 TsgGlobal = Tabla_Simbolo()
 ast.setTSglobal(TsgGlobal)
-try:
-    for instruccion in ast.getInst():
-        value = instruccion.compilar(ast, TsgGlobal)
-        if isinstance(value, Excepcion):
-            ast.setExcepciones(value)
-    for error in ast.getExcepciones():
-        print(error.toString2())
-    print(generador.getCode())
-except:
-    print("Error al ejecutar las instrucciones :c")
+
+agregarNativas(ast)
+
+for instruccion in ast.getInst():
+    value = instruccion.compilar(ast, TsgGlobal)
+    if isinstance(value, Excepcion):
+        ast.setExcepciones(value)
+for error in ast.getExcepciones():
+    print(error.toString2())
+print(generador.getCode())
 

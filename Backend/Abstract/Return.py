@@ -1,6 +1,3 @@
-
-
-
 class Return:
     def __init__(self, val, retType, isTemp, auxType = "", length=0, referencia = ''):
         self.value = val

@@ -1,4 +1,5 @@
 from Abstract.Return import *
+from Abstract.Tipo import *
 
 class Simbolo:
 
@@ -12,6 +13,7 @@ class Simbolo:
         self.tipoAux = ''
         self.length = 0
         self.referencia = False
+        self.params = None
     
     def getTipo(self):
         return self.type
@@ -21,6 +23,12 @@ class Simbolo:
         return self.pos
     def getInHeap(self):
         return self.inHeap
+    
+    def getParams(self):
+        return self.params
+    
+    def setParams(self, params):
+        self.params = params
     
     def setTipo(self, tipo):
         self.type = tipo

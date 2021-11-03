@@ -1,8 +1,8 @@
-
 class Arbol:
     def __init__(self, instrucciones):
         self.instrucciones = instrucciones
-        self.funciones = []
+        self.funciones = {}
+        self.structs = {}
         self.excepciones = []
         self.consola = ""
         self.tsglobal = None
@@ -23,17 +23,32 @@ class Arbol:
     def getFunciones(self):
         return self.funciones
     
-    def setFunciones(self, idFunc, function):
-        if idFunc in self.funciones.keys():
-            print("Función repetida")
+    def setFunciones(self,id, function):
+        if id in self.funciones.keys():
+            return "error"
         else:
-            self.funciones.append(function)
+            self.funciones[id] = function
     
-    def getFuncion(self, ide):
-        for function in self.funciones:
-            if function.ide == ide:
-                return function
+    def getFuncion(self, id):
+        actual = self
+        if actual!=None:
+            if id in actual.funciones.keys():
+                return actual.funciones[id]
         return None
+    
+    def setStruct(self,id, struct):
+        if id in self.structs.keys():
+            return "error"
+        else:
+            self.structs[id] = struct
+
+    def getStruct(self,id):
+        actual = self
+        if actual!=None:
+            if id in actual.structs.keys():
+                return actual.structs[id]
+        return None
+            
 
     def getExcepciones(self):
         return self.excepciones

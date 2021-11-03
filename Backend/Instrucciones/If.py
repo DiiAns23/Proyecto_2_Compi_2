@@ -1,6 +1,7 @@
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
+from Instrucciones.Return import ReturnE
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
 from TablaSimbolos.Generador import *
@@ -29,6 +30,7 @@ class If(Instruccion):
             for instruccion in self.bloqueIf:
                 entorno.breakLbl = table.breakLbl 
                 entorno.continueLbl = table.continueLbl
+                entorno.returnLbl = table.returnLbl
                 result = instruccion.compilar(tree, entorno)
                 if isinstance(result, Excepcion):
                     tree.setExcepciones(result)
@@ -51,16 +53,35 @@ class If(Instruccion):
                         generator.putLabel(condicion.getFalseLbl())
                         generator.putLabel(salir)
                         return Excepcion("Semantico", "Instruccion Continue fuera de Ciclo", self.fila, self.colum)
+                if isinstance(result, ReturnE):
+                    if entorno.returnLbl != '':
+                        if result.getTrueLbl() == '':
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.setStack('P',result.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
+                        else:
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.putLabel(result.getTrueLbl())
+                            generator.setStack('P', '1')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.putLabel(result.getFalseLbl())
+                            generator.setStack('P', '0')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
+                    
+                        
             
             salir = generator.newLabel()
             generator.addGoto(salir)
 
             generator.putLabel(condicion.getFalseLbl())
             if self.bloqueElse != None:
+                entorno = Tabla_Simbolo(table)
                 for instruccion in self.bloqueElse:
-                    entorno = Tabla_Simbolo(table)
                     entorno.breakLbl = table.breakLbl 
                     entorno.continueLbl = table.continueLbl
+                    entorno.returnLbl = table.returnLbl
                     result = instruccion.compilar(tree, entorno)
                     if isinstance(result, Excepcion):
                         tree.setExcepciones(result)
@@ -76,6 +97,21 @@ class If(Instruccion):
                         else:
                             generator.putLabel(salir)
                             return Excepcion("Semantico", "Instruccion Continue fuera de Ciclo", self.fila, self.colum)
+                    if isinstance(result, ReturnE):
+                        if result.getTrueLbl() == '':
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.setStack('P',result.getValor())
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
+                        else:
+                            generator.addComment('Resultado a retornar en la funcion')
+                            generator.putLabel(result.getTrueLbl())
+                            generator.setStack('P', '1')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.putLabel(result.getFalseLbl())
+                            generator.setStack('P', '0')
+                            generator.addGoto(entorno.returnLbl)
+                            generator.addComment('Fin del resultado a retornar')
             elif self.bloqueElif != None:
                 result = self.bloqueElif.compilar(tree, table)
                 if isinstance(result, Excepcion): return result

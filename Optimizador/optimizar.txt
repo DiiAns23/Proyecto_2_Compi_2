@@ -1,0 +1,37 @@
+/*----HEADER----*/
+package main;
+
+var t0, t1, t2 float64;
+var P, H float64;
+var stack [30101999]float64;
+var heap [30101999]float64;
+
+
+
+func main(){
+	/* Compilacion de valor de variable */
+	stack[int(0)] = 10;
+	/* Fin de valor de variable */
+	
+	/* Compilacion de valor de variable */
+	/* Compilacion de Acceso */
+	t0 = stack[int(0)];
+	/* Fin compilacion acceso */
+	
+	stack[int(1)] = t0;
+	/* Fin de valor de variable */
+	
+	/* Compilacion de valor de variable */
+	/* Compilacion de Acceso */
+	t1 = stack[int(1)];
+	/* Fin compilacion acceso */
+	
+	stack[int(0)] = t1;
+	/* Fin de valor de variable */
+	
+	/* Compilacion de valor de variable */
+	t2 = 1 + 0;
+	stack[int(2)] = t2;
+	
+
+}

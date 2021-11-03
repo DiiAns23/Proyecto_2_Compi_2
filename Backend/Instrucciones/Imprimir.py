@@ -54,7 +54,13 @@ class Imprimir(Instruccion):
                 temp = generator.addTemp()
                 generator.getStack(temp, 'P')
                 generator.retEnv(table.size)
-            else:
+
+            elif val.type == Tipo.CHAR:
+                temp = generator.addTemp()
+                generator.getHeap(temp, val.value)
+                generator.addPrint("c", temp)
+
+            elif val.type == Tipo.ARRAY:
                 print("POR HACER")
             
         if self.newLine:

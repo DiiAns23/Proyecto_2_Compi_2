@@ -2,13 +2,13 @@ from Abstract.Expression import *
 from Abstract.Return import *
 from Abstract.Tipo import *
 from TablaSimbolos.Generador import *
-import uuid
 class Primitivos(Expression):
 
     def __init__(self, value, type, line, column):
         Expression.__init__(self, line, column)
         self.value = value
         self.type = type
+        self.tipoAux = ''
     
     def compilar(self, tree, table):
         genAux = Generador()
@@ -46,7 +46,14 @@ class Primitivos(Expression):
             generator.setHeap('H', '-1')            # FIN DE CADENA
             generator.nextHeap()
 
-            return Return(retTemp, Tipo.STRING, True)
+            return Return(retTemp, self.type, True)
+        elif self.type == Tipo.CHAR:
+            retTemp = generator.addTemp()
+            generator.addAsig(retTemp, 'H')
+            generator.setHeap('H', ord(self.value))
+            generator.nextHeap()
+
+            return Return(retTemp, self.type, True)
         else:
             print('Por hacer')
     
@@ -54,7 +61,11 @@ class Primitivos(Expression):
         return self.type
     def getValue(self):
         return int(self.value)
+    def getTipoAux(self):
+        return self.tipoAux
     def setValue(self, value):
         self.value = value
     def setTipo(self, tipo):
         self.tipo = tipo
+    def setTipoAux(self, tipo):
+        self.tipoAux = tipo

@@ -19,11 +19,13 @@ class Relacionales(Expression):
         generador.addComment("Inicio de la expresion relacional")
         
         left = self.left.compilar(tree, table)
+        if isinstance(left, Excepcion): return left
         right = None
         result = Return(None, Tipo.BOOL, False)
 
         if left.getTipo() != Tipo.BOOL:
             right = self.right.compilar(tree, table)
+            if isinstance(right, Excepcion): return right
             if (left.getTipo() == Tipo.INT or left.getTipo() == Tipo.FLOAT) and (right.getTipo() == Tipo.INT or right.getTipo() == Tipo.FLOAT):
                 self.checkLabels()
                 generador.addIf(left.getValue(), right.getValue(), self.getOp(), self.getTrueLbl())
