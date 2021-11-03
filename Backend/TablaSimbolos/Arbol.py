@@ -1,8 +1,8 @@
-
 class Arbol:
     def __init__(self, instrucciones):
         self.instrucciones = instrucciones
         self.funciones = {}
+        self.structs = {}
         self.excepciones = []
         self.consola = ""
         self.tsglobal = None
@@ -30,11 +30,25 @@ class Arbol:
             self.funciones[id] = function
     
     def getFuncion(self, id):
-        entornoActual = self
-        while entornoActual != None:
-            if id in entornoActual.funciones.keys():
-                return entornoActual.funciones[id]
+        actual = self
+        if actual!=None:
+            if id in actual.funciones.keys():
+                return actual.funciones[id]
         return None
+    
+    def setStruct(self,id, struct):
+        if id in self.structs.keys():
+            return "error"
+        else:
+            self.structs[id] = struct
+
+    def getStruct(self,id):
+        actual = self
+        if actual!=None:
+            if id in actual.structs.keys():
+                return actual.structs[id]
+        return None
+            
 
     def getExcepciones(self):
         return self.excepciones

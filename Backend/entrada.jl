@@ -1,10 +1,9 @@
-a = [
-    [
-        [1,2,3],[4,5,6],[7,8,9]
-    ],
-    [
-        [1,2,3],[4,5,6],[7,8,9]
-    ]
-]::Vector{Vector{Vector{Int64}}};
+mutable struct hijo
+    nombre::String;
+end;
 
-println(a[1][1][2]);
+diego = hijo("Diego");
+jose = hijo("Jose");
+
+print(diego.nombre);
+print(jose.nombre);

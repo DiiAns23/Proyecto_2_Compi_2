@@ -33,7 +33,7 @@ class Array(Expression):
         temp = generator.addTemp()
         # Obtencion de posicion de la variable
         tempPos = var.pos
-        if(not var.isGlobal):
+        if not var.isGlobal:
             tempPos = generator.addTemp()
             generator.addExp(tempPos, 'P', var.pos, "+")
         generator.getStack(temp, tempPos)

@@ -9,3 +9,6 @@ class Variable(CodigoTresDirecciones):
     
     def getCode(self):
         return str(self.value)
+    
+    def cambiar_a (self, valor):
+        self.value = valor

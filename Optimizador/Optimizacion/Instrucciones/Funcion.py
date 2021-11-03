@@ -4,12 +4,12 @@ class Funcion(c3d):
 
     def __init__(self, id, inst, fila, colum):
         self.id = id
-        self.inst = inst
+        self.instr = inst
         super().__init__(fila, colum)
 
     def getCode(self):
         ret = f'func {self.id} () {{\n'
-        for inst in self.inst:
+        for inst in self.instr:
             aux1 = inst.getCode()
             if aux1 != '':
                 ret += f'\t{aux1}\n'

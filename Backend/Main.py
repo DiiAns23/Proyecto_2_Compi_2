@@ -27,6 +27,7 @@ def prueba():
         entrada = json.loads(entrada)
         global tmp_val
         tmp_val = entrada["codigo"]
+        
         return redirect(url_for("salida"))
     
 @app.route('/salida')
@@ -38,7 +39,6 @@ def salida():
     genAux = Generador()
     genAux.cleanAll()
     generador = genAux.getInstance()
-
     instrucciones = Analizar(tmp_val)
     ast = Arbol(instrucciones)
     TsgGlobal = Tabla_Simbolo()
@@ -54,6 +54,7 @@ def salida():
         return json.dumps(consola)
     except:
         print("Error al ejecutar las instrucciones :c")
+
 
 @app.route('/errores')
 def getErrores():

@@ -1,6 +1,8 @@
+from typing import List
 from Abstract.Instruccion import *
 from Abstract.Return import *
 from Abstract.Tipo import *
+from Instrucciones.Declaracion_Arrays import Declaracion_Arrays
 from TablaSimbolos.Generador import *
 from TablaSimbolos.Excepcion import *
 from TablaSimbolos.Tabla_Simbolos import *
@@ -16,12 +18,11 @@ class Llamada_Funcion(Instruccion):
         super().__init__(fila, colum)
     
     def compilar(self, tree, table):
-        funcion = tree.getFuncion(self.id)
         genAux = Generador()
         generator = genAux.getInstance()
+        funcion = tree.getFuncion(self.id)
         if funcion != None:
             generator.addComment(f"Llamada de la Funcion {self.id}")
-
             paramValues = []
             temps = []
             size = table.size
@@ -70,6 +71,7 @@ class Llamada_Funcion(Instruccion):
                                 return Excepcion('Semantico', f'Tipos no coinciden en la llamada de la funcion {self.id}', self.fila, self.colum)
             else:
                 generator.addComment(f'Error en la llamada de la funcion {self.id}')
+                return Excepcion("Semantico",f'Error en la llamada de la funcion {self.id}', self.fila, self.colum)
             generator.newEnv(size)
             self.getFuncion(generator)
             generator.callFun(self.id)
@@ -95,8 +97,60 @@ class Llamada_Funcion(Instruccion):
                 generator.addComment('Fin de recuperacion de booleano')
                 return ret
 
-        generator.addComent(f'Error producido en la llamada a la funcion {self.id} consulte la lista de errores')
-        return Excepcion('Semantico',f'No se ha encontrado la funcion {self.id}', self.fila, self.colum)
+        struct = tree.getStruct(self.id)
+        if struct != None:
+            generator.addComment(f'Creando Struct {self.id}')
+            paramValues = []
+            temps = []
+            size = table.size
+            t0 = generator.addTemp()
+            t1 = generator.addTemp()
+            generator.addAsig(t0,'H')
+            generator.addAsig(t1,'H')
+            generator.addExp('H','H',len(struct.params),'+')
+            generator.addSpace()
+            length = 0
+            apuntador = 0
+            for param in self.params:
+                if isinstance(param, Llamada_Funcion):
+                    self.guardarTemps(generator, table, temps)
+                    a = param.compilar(tree, table)
+                    paramValues.append(a)
+                    self.recuperarTemps(generator, table, temps)
+                else:
+                    if isinstance(param, Declaracion_Arrays):
+                        param.isinStruct = True
+                    val = param.compilar(tree, table)
+                    try:
+                        if not isinstance(struct.params[apuntador]['tipo'], List):
+                            if val.getTipo() == struct.params[apuntador]['tipo']:
+                                generator.setHeap(t1,val.getValue())
+                                generator.addExp(t1,t1,'1','+')
+                                generator.addSpace()
+                                length += 1
+                                apuntador += 1
+                            else:
+                                return Excepcion("Semantico", "Tipos no coinciden en declaracion o asignacion del struct", self.fila, self.colum)
+                        else:
+                            if val.getTipo() == struct.params[apuntador]['tipo'][0] and val.getTipoAux() == struct.params[apuntador]['tipo']:
+                                generator.setHeap(t1,val.getValue())
+                                generator.addExp(t1,t1,'1','+')
+                                generator.addSpace()
+                                length += 1
+                                apuntador += 1
+                            else:
+                                return Excepcion("Semantico", "Tipos no coinciden en declaracion o asignacion del struct", self.fila, self.colum)
+                        
+                    except:
+                        return Excepcion("Semantico", "Tipos no coinciden en declaracion o asignacion del struct", self.fila, self.colum)
+    
+            ret = Return(t0, Tipo.STRUCT, True, struct.id, struct.params)
+            generator.addComment('Fin de la asignacion')
+            return ret
+            
+        else:
+            generator.addComment(f'Error producido en la llamada a la funcion o struct {self.id} consulte la lista de errores')
+            return Excepcion('Semantico',f'No se ha encontrado la funcion o struct {self.id}', self.fila, self.colum)
     
     def guardarTemps(self, generator, table, tmp2):
         generator.addComment('Guardado de temporales')

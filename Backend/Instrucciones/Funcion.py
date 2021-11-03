@@ -28,7 +28,7 @@ class Funcion(Instruccion):
         
         if funcion == "error":
             error = Excepcion("Semantico", f"Funcion {self.id} ya existe", self.fila, self.colum)
-            tree.setExcepciones(error)
+            return error
         
         genAux = Generador()
         generator = genAux.getInstance()
