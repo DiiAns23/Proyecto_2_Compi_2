@@ -28,7 +28,10 @@ class Declaracion_Sructs(Instruccion):
         if self.params:
             for param in self.params:
                 if not isinstance(param["tipo"], List):
-                    entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
+                    simbolo = entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
                 else:
                     simbolo = entorno.setTabla(param["ide"], param["tipo"][0],True)
                     simbolo.setTipoAux(param["tipo"][1])
+
+    def getParams(self):
+        return self.params

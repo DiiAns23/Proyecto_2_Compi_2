@@ -23,27 +23,72 @@ class Struct(Expression):
 
         generator.addComment(f"Compilacion de Acceso de la variable {self.id}")
 
-        struct = table.getTabla(self.id)
+        nombre = self.id
+        temp = generator.addTemp()
+        tmp2 = generator.addTemp()
+        tmp = generator.addTemp()
+        tipo = ''
+        aux = ''
 
+        struct = table.getTabla(nombre)
         if struct == None:
             generator.addComment("Fin compilacion de acceso por error")
             return Excepcion("Semantico", "Error no existe la variable '"+str(self.id)+"'", self.fila, self.colum)
-        posiciones = []
-        for param in self.params:
-            x = 0
+        # Temporal para guardar variable
+
+        # Obtencion de posicion de la variable
+        tempPos = struct.pos
+        if(not struct.isGlobal):
+            tempPos = generator.addTemp()
+            generator.addExp(tempPos, 'P', struct.pos, "+")
+        generator.getStack(temp, tempPos)
+        
+        y = 0
+        x = 0           #Debo de componer el acceso a los structs, tienen problema de enciclado
+        while True:
+            param = self.params[0]
             if isinstance(param, Variable):
                 aux = param.id
+                for structParam in struct.getParams():
+                    if aux in structParam['ide']:
+                        tipo = structParam['tipo']
+                        generator.addExp(tmp2, temp, x,'+')
+                        generator.getHeap(tmp,tmp2)
+                        break
+                    x += 1
             if isinstance(param, Array):
-                print("Por hacer")
+                indice = param.indice[0].compilar(tree, table)
+                if isinstance(indice, Excepcion): return indice
+                aux = param.id
+                for structParam in struct.getParams():
+                    if aux in structParam['ide']:
+                        tipo = structParam['tipo'][1]
+                        generator.addExp(tmp2, temp, x, '+')
+                        tmp3 = generator.addTemp()
+                        generator.getHeap(tmp3, tmp2)
+                        generator.addExp(tmp3, tmp3, indice.getValue(), '+')
+                        generator.getHeap(tmp, tmp3)
+                        break
+                    x += 1
+                    
             if isinstance(param, Struct):
-                print("Por hacer ")
-            for structParam in struct.getParams():
-                x = 0
-                if aux in structParam['ide']:
-                    posiciones.append(x)
-                    print("Si existe :3")
-                x += 1
+                aux = param.id
+                for structParam in struct.getParams():
+                    if aux in structParam['ide']:
+                        tipo = structParam['tipo']
+                        generator.addExp(tmp2, temp, x,'+')
+                        generator.getHeap(tmp,tmp2)
+                        break
+                    x += 1
+                struct = tree.getStruct(tipo[1])
+                self.params = [param.params[0]]
+                nombre = aux
+                temp = tmp
+                continue
+            y += 1
+            if y < len(self.params):
+                temp = tmp
+            else:
+                break
         
-        print(self.id)
-        print(str(self.params))
-        return Return("Nombreee", Tipo.STRING, False)
+        return Return(tmp, tipo, True)

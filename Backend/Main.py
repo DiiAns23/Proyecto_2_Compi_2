@@ -18,7 +18,7 @@ CORS(app)
 
 @app.route('/saludo', methods = ["GET"])
 def saludo():
-    return "Hola mundo"
+    return "Hola estamos en Backend"
 
 @app.route('/prueba', methods = ["POST", "GET"])
 def prueba():
