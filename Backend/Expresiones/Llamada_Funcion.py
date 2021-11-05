@@ -31,10 +31,12 @@ class Llamada_Funcion(Instruccion):
                 if isinstance(param, Llamada_Funcion):
                     self.guardarTemps(generator, table, temps)
                     a = param.compilar(tree, table)
+                    if isinstance(a, Excepcion): return a
                     paramValues.append(a)
                     self.recuperarTemps(generator, table, temps)
                 else:
                     a = param.compilar(tree, table)
+                    if isinstance(a, Excepcion): return a
                     paramValues.append(a)
                     temps.append(a.getValue())
 
@@ -45,7 +47,7 @@ class Llamada_Funcion(Instruccion):
             if len(funcion.getParams()) == len(paramValues):
                 for param in paramValues:
                     try:
-                        if funcion.params[aux]['tipo'] == param.getTipo()[0]:
+                        if (funcion.params[aux]['tipo'] == param.getTipo()[0]) or (funcion.params[aux]['tipo'] == param.getTipo()[0]):
                             aux += 1
                             generator.setStack(temp, param.getValue())
                             if aux != len(paramValues):
@@ -132,7 +134,7 @@ class Llamada_Funcion(Instruccion):
                             else:
                                 return Excepcion("Semantico", "Tipos no coinciden en declaracion o asignacion del struct", self.fila, self.colum)
                         else:
-                            if val.getTipo() == struct.params[apuntador]['tipo'][0] and val.getTipoAux() == struct.params[apuntador]['tipo']:
+                            if val.getTipo() == struct.params[apuntador]['tipo'][0] and (val.getTipoAux() == struct.params[apuntador]['tipo'] or val.getTipoAux() == struct.params[apuntador]['tipo'][1]):
                                 generator.setHeap(t1,val.getValue())
                                 generator.addExp(t1,t1,'1','+')
                                 generator.addSpace()

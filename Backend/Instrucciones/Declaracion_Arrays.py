@@ -38,7 +38,15 @@ class Declaracion_Arrays(Instruccion):
                         if not isinstance(value, Declaracion_Arrays):
                             val = value.compilar(tree,table)
                             try:
-                                if val.getTipo() == self.tipoAux[1]:
+                                if val.getTipo() == Tipo.STRUCT:
+                                    if [val.getTipo(), val.getTipoAux()] == self.tipoAux[1]:
+                                        generator.setHeap(t1,val.getValue())
+                                        generator.addExp(t1,t1,'1','+')
+                                        generator.addSpace()
+                                        length += 1    
+                                    else:
+                                        return Excepcion("Semantico", "Tipos no coinciden en declaracion o asignacion del array", self.fila, self.colum)    
+                                elif val.getTipo() == self.tipoAux[1]:
                                     generator.setHeap(t1,val.getValue())
                                     generator.addExp(t1,t1,'1','+')
                                     generator.addSpace()

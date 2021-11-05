@@ -40,11 +40,18 @@ class Funcion(Instruccion):
         entorno.size = 1
         if self.params:
             for param in self.params:
-                if not isinstance(param["tipo"], List):
+                if param['tipo'] == Tipo.STRUCT:
+                    simbolo = entorno.setTabla(param['ide'], param['tipo'], True)
+
+                elif not isinstance(param["tipo"], List):
                     entorno.setTabla(param["ide"], param["tipo"], (param["tipo"] == Tipo.STRING or param["tipo"] == Tipo.STRUCT or param["tipo"] == Tipo.ARRAY))
                 else:
                     simbolo = entorno.setTabla(param["ide"], param["tipo"][0],True)
                     simbolo.setTipoAux(param["tipo"][1])
+                    if param['tipo'][0] == Tipo.STRUCT:
+                        struct = tree.getStruct(param['tipo'][1])
+                        simbolo.setParams(struct.getParams())
+
         generator.addBeginFunc(self.id)
 
 

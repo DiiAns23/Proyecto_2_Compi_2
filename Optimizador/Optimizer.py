@@ -11,6 +11,9 @@ sys.setrecursionlimit(10000000)
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/saludo', methods = ["GET"])
+def saludo():
+    return "Hola estamos en Optimizador"
 
 @app.route('/optimizar', methods = ["POST", "GET"])
 def optimizar():

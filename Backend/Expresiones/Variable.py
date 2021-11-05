@@ -1,3 +1,4 @@
+from typing import List
 from TablaSimbolos.Excepcion import Excepcion
 from TablaSimbolos.Generador import *
 from Abstract.Expression import *
@@ -37,8 +38,11 @@ class Variable(Expression):
         if var.type != Tipo.BOOL:
             generator.addComment("Fin compilacion acceso")
             generator.addSpace()
+        
             if var.type == Tipo.ARRAY:
                 return Return(temp, var.type, True, var.getTipoAux(), var.getLength(), var.getId())
+            elif var.type == Tipo.STRUCT:
+                return Return(temp, var.type, True, var.getTipoAux(), var.params)
             else:
                 return Return(temp, var.type, True)
         if self.trueLbl == '':

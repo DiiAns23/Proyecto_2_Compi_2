@@ -1,3 +1,4 @@
+from typing import List
 from TablaSimbolos.Generador import *
 from Abstract.Instruccion import *
 from Abstract.Return import *
@@ -73,8 +74,9 @@ class Declaracion(Instruccion):
                     simbolo.setTipoAux(val.getTipoAux())
                     simbolo.setLength(val.getLength())
                     simbolo.setReferencia(val.getReferencia())
-                elif val.getTipo() == Tipo.STRUCT:
+                elif val.getTipo() == Tipo.STRUCT:    
                     simbolo = table.setTabla(self.id, val.getTipo(), True, self.find)
+                    simbolo.setTipoAux(val.getTipoAux())
                     simbolo.setParams(val.length)
                 else:
                     # Guardado y obtencion de variable. Esta tiene la posicion, lo que nos sirve para asignarlo en el heap

@@ -425,7 +425,7 @@ def p_tipo(t):
     elif t[1] == "String":
         t[0] = Tipo.STRING
     else:
-        t[0] = Tipo.STRUCT
+        t[0] = [Tipo.STRUCT, t[1]]
     
 def p_tipo_2(t):
     '''tipo : tipo LLI tipo LLD '''
