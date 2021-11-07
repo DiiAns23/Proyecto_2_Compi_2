@@ -243,5 +243,6 @@ def parse2(inp):
 # a = parse2(entrada)
 # a.Mirilla()
 # print(a.getCode())
+# a.getReporte()
 # print("Sin errores :3")
 

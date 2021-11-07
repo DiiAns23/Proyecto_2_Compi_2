@@ -42,6 +42,7 @@ class Logicas(Expression):
             self.left.setFalseLbl(self.trueLbl) 
             self.left.setTrueLbl(self.falseLbl)
             lblNot = self.left.compilar( tree, table)
+            if isinstance(lblNot, Excepcion): return lblNot
 
             if lblNot.getTipo() != Tipo.BOOL:
                 return Excepcion("Semantico", "No se puede utilizar la expresion booleana en: ", self.fila, self.colum)
@@ -55,11 +56,13 @@ class Logicas(Expression):
             return lblNot
 
         left = self.left.compilar( tree, table)
+        if isinstance(left, Excepcion): return left
         if left.getTipo() != Tipo.BOOL:
             return Excepcion("Semantico", "No se puede utilizar la expresion booleana en: ", self.fila, self.colum)
 
         generator.putLabel(lblAndOr)
         right = self.right.compilar( tree, table)
+        if isinstance(right, Excepcion): return right
 
         if right.getTipo() != Tipo.BOOL:
             return Excepcion("Semantico", "No se puede utilizar la expresion booleana en: ", self.fila, self.colum)

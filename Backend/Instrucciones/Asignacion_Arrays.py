@@ -38,7 +38,6 @@ class Asignacion_Arrays(Instruccion):
         generator.getStack(tmp10, tempPos)
         
         value = self.valor.compilar(tree, table)
-
         if isinstance(value, Excepcion):
             return value
 

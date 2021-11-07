@@ -1,3 +1,4 @@
+from re import A
 from Optimizacion.Gotos.Goto import *
 from Optimizacion.Gotos.If import *
 from Optimizacion.Instrucciones.Asignacion import *
@@ -9,6 +10,7 @@ class Optimizador:
         self.packages = packages
         self.temps = temporales
         self.code = codigo
+        self.optimizacion = []
     
     def getCode(self):
         ret = f'package main;\n\n'
@@ -28,6 +30,13 @@ class Optimizador:
             
         return ret
     
+    def reporteMirilla(self,regla, expresion, optimizada, fila):
+        self.optimizacion.append(f'{regla}, {expresion}, {optimizada}, {fila}')
+    
+    def getReporte(self):
+        return self.optimizacion
+        
+
     def Mirilla(self):
         # Por cada funcion
         for func in self.code:
@@ -69,18 +78,19 @@ class Optimizador:
             actual = array[i]
             if isinstance(actual, Label) and not actual.deleted:
                 label=actual.id
-                si_hay_goto=False
+                bandera=False
                 x=0
                 while x<len(array):
                     gotoo=array[x]
                     if isinstance(gotoo, Goto) and not gotoo.deleted:
                         if (gotoo.etiqueta==label):
-                            si_hay_goto=True
+                            bandera=True
                     elif isinstance(gotoo, If) and not gotoo.deleted:
                         if (gotoo.etiqueta==label):
-                            si_hay_goto=True
+                            bandera=True
                     x=x+1
-                if si_hay_goto==False:
+                if bandera==False:
+                    self.reporteMirilla('Regla Extra', f'{actual.getCode()}', '//Expresion eliminada para evitar errores de Goto y Labels', actual.fila)
                     actual.deleted=True
             i=i+1
 
@@ -110,6 +120,7 @@ class Optimizador:
                                     
                                     if bandera==False:
                                         opt = True
+                                        self.reporteMirilla('Regla 1',f'{actual.getCode()}\n{siguiente.getCode()}',f'{actual.getCode()}', siguiente.fila)
                                         siguiente.deleted = True
                                         break
                         x=x+1
@@ -128,11 +139,13 @@ class Optimizador:
                 while x<len(array):
                     siguiente=array[x]
                     if not isinstance(siguiente, Label) and not siguiente.deleted:
+                        self.reporteMirilla('Regla 2',f'{actual.getCode()}\n{siguiente.getCode()}',lbl1, siguiente.fila)
                         siguiente.deleted = True
                         opt =True
                     elif isinstance(siguiente, Label) and not siguiente.deleted:
                         lbl2=siguiente.id
                         if lbl1 == lbl2:
+                            self.reporteMirilla('Regla 2',f'{actual.getCode()}',lbl1, siguiente.fila)
                             actual.deleted=True
                             opt =True 
                         break
@@ -154,9 +167,11 @@ class Optimizador:
                     if isinstance(siguiente, Goto) and not siguiente.deleted:
                         if isinstance(lbl, Label) and not lbl.deleted:
                             if lbl.id==actual.etiqueta:
+                                original = f'{actual.getCode()}\n{siguiente.getCode()}'
                                 actual.condicion.signoContrario() # agarra signo contrario
-                                actual.etiqueta = siguiente.etiqueta # cambia la etiquete del if
+                                actual.etiqueta = siguiente.etiqueta # cambia la etiqueta del if
                                 siguiente.deleted = True # elimina goto de la etiqueta del else
+                                self.reporteMirilla('Regla 3', original,f'{actual.getCode()}', actual.fila)
                                 lbl.deleted = True # elimina la etiqueta del if anterior
                                 opt = True  
         return opt 
@@ -179,7 +194,9 @@ class Optimizador:
                             if x<len(array)-1:
                                 goto1=array[x+1]
                                 if isinstance(goto1, Goto) and not goto1.deleted:
+                                    original = f'{actual.etiqueta}'
                                     actual.etiqueta=goto1.etiqueta
+                                    self.reporteMirilla('Regla 4', original,f'{actual.getCode()}', actual.fila)
                                     siguiente.deleted=True
                                     goto1.deleted=True
                                     opt =True  
@@ -211,7 +228,9 @@ class Optimizador:
                                         hay_instr=True
                                         y=y+1
                                     if hay_instr:
+                                        original = actual.getCode()
                                         actual.etiqueta=goto1.etiqueta
+                                        self.reporteMirilla('Regla 5', original,f'{actual.getCode()}', actual.fila)
                                         opt =True  
                                         break
                     x=x+1
@@ -228,6 +247,7 @@ class Optimizador:
                 if(actual.selfAsignacion()): # Si se esta asignando a si mismo en alguna posicion de exp
                     if actual.exp.Redu6():# verrificar +0 -0 *1 /1
                         opt = True
+                        self.reporteMirilla('Regla 6',f'{actual.getCode()}','//Se ha eliminado', actual.fila)
                         actual.deleted = True
         return opt 
     
@@ -239,7 +259,9 @@ class Optimizador:
             if isinstance(actual, Asignacion) and not actual.deleted:
                 if(not actual.selfAsignacion()): # Si no esta asignando a si mismo en alguna posicion de exp
                     if not isinstance(actual.exp, Variable) and not isinstance(actual.exp, Acceso) and not actual.deleted:
+                        original = actual.getCode()
                         if actual.exp.Redu7():# Si si cambio la expresion
+                            self.reporteMirilla('Regla 7',original,f'{actual.getCode()}', actual.fila)
                             opt = True
         return opt 
 
@@ -250,6 +272,8 @@ class Optimizador:
             actual = array[i]
             if isinstance(actual, Asignacion) and not actual.deleted:
                 if isinstance(actual.exp, Expresion):
+                    original = actual.getCode()
                     if actual.exp.Redu8():# Si si cambio la expresion
+                        self.reporteMirilla('Regla 8',original,f'{actual.getCode()}', actual.fila)
                         opt = True
         return opt 

@@ -488,31 +488,31 @@ def parse(inp):
     lexer.lineno = 1
     return parser.parse(inp)
 
-f = open("Backend/entrada.jl", "r")
-entrada = f.read()
-print("ARCHIVO DE ENTRADA:")
-print("")
-print(entrada)
-print("")
-print("ARCHIVO DE SALIDA:")
+# f = open("Backend/entrada.jl", "r")
+# entrada = f.read()
+# print("ARCHIVO DE ENTRADA:")
+# print("")
+# print(entrada)
+# print("")
+# print("ARCHIVO DE SALIDA:")
 
 
-genAux = Generador()
-genAux.cleanAll()
-generador = genAux.getInstance()
+# genAux = Generador()
+# genAux.cleanAll()
+# generador = genAux.getInstance()
 
-instrucciones = parse(entrada)
-ast = Arbol(instrucciones)
-TsgGlobal = Tabla_Simbolo()
-ast.setTSglobal(TsgGlobal)
+# instrucciones = parse(entrada)
+# ast = Arbol(instrucciones)
+# TsgGlobal = Tabla_Simbolo()
+# ast.setTSglobal(TsgGlobal)
 
-agregarNativas(ast)
+# agregarNativas(ast)
 
-for instruccion in ast.getInst():
-    value = instruccion.compilar(ast, TsgGlobal)
-    if isinstance(value, Excepcion):
-        ast.setExcepciones(value)
-for error in ast.getExcepciones():
-    print(error.toString2())
-print(generador.getCode())
+# for instruccion in ast.getInst():
+#     value = instruccion.compilar(ast, TsgGlobal)
+#     if isinstance(value, Excepcion):
+#         ast.setExcepciones(value)
+# for error in ast.getExcepciones():
+#     print(error.toString2())
+# print(generador.getCode())
 

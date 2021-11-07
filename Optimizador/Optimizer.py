@@ -31,7 +31,18 @@ def mirilla():
         res = Optimizar(tmp_val_opt)
         res.Mirilla()
         consola = res.getCode()
+        global reporte 
+        reporte = res.getReporte()
         return json.dumps(consola)
+    except:
+        consola = "Se  ha ejecutado un problema de compilacion :c"
+        return json.dumps(consola)
+
+@app.route('/reporte', methods = ['GET'])
+def reporte():
+    try:
+        global reporte
+        return {'valores': reporte}
     except:
         consola = "Se  ha ejecutado un problema de compilacion :c"
         return json.dumps(consola)
