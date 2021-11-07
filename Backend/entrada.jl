@@ -1,21 +1,8 @@
-mutable struct Hijo
-    nombre::String;
-    apellido::String;
-    edad::Int64;
+function factorial(num::Int64)
+    if num ==1
+        return 1;
+    end;
+    return num * factorial(num-1);
 end;
 
-mutable struct Padre
-    nombre::String;
-    apellido::String;
-    hijos::Vector{Hijo};
-end;
-
-diego = Hijo("Diego","Obin",20);
-jose = Hijo("Jose","Obin",17);
-
-hijos = [diego, jose]::Vector{Hijo};
-
-padre = Padre("Juan","Obin",hijos);
-
-print(padre.hijos[1].nombre);
-
+print(factorial(5));

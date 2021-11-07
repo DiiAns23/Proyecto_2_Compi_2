@@ -117,6 +117,7 @@ class Llamada_Funcion(Instruccion):
                 if isinstance(param, Llamada_Funcion):
                     self.guardarTemps(generator, table, temps)
                     a = param.compilar(tree, table)
+                    if isinstance(a, Excepcion): return a
                     paramValues.append(a)
                     self.recuperarTemps(generator, table, temps)
                 else:

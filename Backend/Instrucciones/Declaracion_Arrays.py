@@ -37,6 +37,7 @@ class Declaracion_Arrays(Instruccion):
                     for value in self.values:
                         if not isinstance(value, Declaracion_Arrays):
                             val = value.compilar(tree,table)
+                            if isinstance(val, Excepcion): return val
                             try:
                                 if val.getTipo() == Tipo.STRUCT:
                                     if [val.getTipo(), val.getTipoAux()] == self.tipoAux[1]:
@@ -59,6 +60,7 @@ class Declaracion_Arrays(Instruccion):
                             value.multiDim = True
                             value.tipoAux = self.tipoAux[1]
                             val = value.compilar(tree,table)
+                            if isinstance(val, Excepcion): return val
                             try:
                                 if val.getTipo() == self.tipoAux[1][0]:
                                     generator.setHeap(t1,val.getValue())
@@ -101,6 +103,7 @@ class Declaracion_Arrays(Instruccion):
                 for value in self.values:
                     if not isinstance(value, Declaracion_Arrays):
                         val = value.compilar(tree,table)
+                        if isinstance(val, Excepcion): return val
                         aux = val.getTipo()
                         generator.setHeap(t1,val.getValue())
                         generator.addExp(t1,t1,'1','+')
@@ -110,6 +113,7 @@ class Declaracion_Arrays(Instruccion):
                         value.multiDim = True
                         value.tipoAux = value.getTipo()
                         val = value.compilar(tree,table)
+                        if isinstance(val, Excepcion): return val
                         tipoAux.append(val.getTipoAux())
                         generator.setHeap(t1,val.getValue())
                         generator.addExp(t1,t1,'1','+')
